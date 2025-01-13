@@ -1,9 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-
-
+import messageSlice from './redux/messageSlice'
+import userSlice from './redux/userSlice'
 
 const store = configureStore({
-    reducer: {}
+    reducer: {
+        chatreducer:messageSlice,
+        userreducer:userSlice
+    }
 });
 
 // Define the RootState type
