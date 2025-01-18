@@ -1,13 +1,70 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import axios from 'axios'
-import { Link, Links } from 'react-router-dom'
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '@/store'
+import { Loader2, Users } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { signin, signup } from '@/store/userSlice'
+import { axiosInstance } from '@/lib/axios'
+import { data } from 'react-router-dom'
 
 function Login() {
-    const [name, setname] = useState<string>('')
-    const [email, setemail] = useState<string>('')
-    const [password, setpassword] = useState<string>('')
+    interface Iformdata {
+        name?: string,
+        email: string,
+        password: string,
+    }
+    const dispatch = useDispatch<AppDispatch>()
+    const isSigningUp = useSelector((state: RootState) => state.userreducer.isSigningUp)
+    const islogging = useSelector((state: RootState) => state.userreducer.islogging)
+
+    const [formdata, setformData] = useState({
+        name: '',
+        email: '',
+        password: '',
+    })
+
+
+
+    const SignupUser = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+
+        
+        console.log(formdata);
+        const success = validateForm()
+        if (!success) {
+            dispatch(signup(formdata)).unwrap()
+            if (isSigningUp === false) {
+                setnewAcc('SignIn')
+            }
+        }
+
+    }
+    const Signin = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        const { email, password } = formdata
+        const success = validateForm()
+        console.log(email);
+
+        if (!success) {
+          dispatch(signin(formdata)).unwrap()
+            if (islogging === true) {
+                console.log(islogging);
+
+            }
+
+        }
+    }
+    const validateForm = () => {
+        if (newAcc === 'SignUp' && !formdata.name?.trim()) return toast.error('Username is required')
+        if (!formdata.email.trim()) return toast.error('Email is required')
+        if (!/^\S+@\S+\.\S+$/i.test(formdata.email)) return toast.error('Invalid email format')
+        if (formdata.password.length < 5) return toast.error('Password must be at least 8 characters long')
+        if (!formdata.password.trim()) return toast.error('Password is required')
+
+    }
+
 
     const [newAcc, setnewAcc] = useState<string>('SignUp')
 
@@ -15,28 +72,28 @@ function Login() {
     return (
         <div className="bg-[url('./src/assets/images/3137882.jpg')] h-svh bg-no-repeat  bg-center bg-cover   ">
             <div className='w-full h-full flex  bg-black bg-opacity-40'>
-                <div className='w-[90%] sm:w-[60%] bg-zinc-900 bg-opacity-90 text-[#f0f0f0]   rounded-md m-auto py-16 px-10  flex flex-col gap-5'>
+                <form className='w-[90%] sm:w-[60%] bg-zinc-900 bg-opacity-90 text-[#f0f0f0]   rounded-md m-auto py-16 px-10  flex flex-col gap-5'>
                     {newAcc === 'SignUp' ? <>
                         <p className='text-center text-xl md:text-2xl lato-bold '>Create Your Account </p>
                         <div>
                             <p >Username <span className='text-red-600'>*</span> </p>
-                            <Input type='text' value={name} onChange={(e) => setname(e.target.value)} />
+                            <Input type='text' value={formdata.name} onChange={(e) => setformData({ ...formdata, name: e.target.value })} />
                         </div>
                     </> : <p className='text-center text-xl md:text-2xl lato-bold '>Welcome back!</p>}
                     <div>
                         <p >Email <span className='text-red-600'>*</span> </p>
-                        <Input type='email' value={email} onChange={(e) => setemail(e.target.value)} />
+                        <Input type='email' value={formdata.email} onChange={(e) => setformData({ ...formdata, email: e.target.value })} />
                     </div>
                     <div>
                         <p >Password <span className='text-red-600'>*</span> </p>
-                        <Input type='password' value={password} onChange={(e) => setpassword(e.target.value)} />
+                        <Input type='password' value={formdata.password} onChange={(e) => setformData({ ...formdata, password: e.target.value })} />
                     </div>
-                    {newAcc === 'SignUp' ? <Button  className='bg-secondary text-black lato-bold text-lg hover:bg-zinc-400' >SignUp</Button> :
-                        <Button  className='bg-secondary text-black lato-bold text-lg hover:bg-zinc-400' >SignIn</Button>}
+                    {newAcc === 'SignUp' ? <Button disabled={!!isSigningUp} onClick={(e) => SignupUser(e)} className='bg-secondary text-black lato-bold text-lg hover:bg-zinc-400' >{isSigningUp ? <> <Loader2 className='size-10 animate-spin' /></> : 'SignUp'}</Button> :
+                        <Button disabled={!!islogging} onClick={(e) => Signin(e)} className='bg-secondary text-black lato-bold text-lg hover:bg-zinc-400' >{islogging ? <> <Loader2 className='size-10 animate-spin' /></> : 'SignIn'}</Button>}
 
                     {newAcc === 'SignUp' ? <p onClick={() => setnewAcc('SignIn')} className='cursor-pointer'>Already have an account ?</p> :
                         <p onClick={() => setnewAcc('SignUp')} className='cursor-pointer'>Create an account ?</p>}
-                </div>
+                </form>
             </div>
         </div>
     )
