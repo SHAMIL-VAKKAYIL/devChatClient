@@ -3,11 +3,10 @@ import { Input } from '@/components/ui/input'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
-import { Loader2, Users } from 'lucide-react'
+// import { Loader2, Users } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { signin, signup } from '@/store/userSlice'
-import { axiosInstance } from '@/lib/axios'
-import { data } from 'react-router-dom'
+import { AiOutlineLoading3Quarters } from "react-icons/ai"
 
 function Login() {
     interface Iformdata {
@@ -88,8 +87,8 @@ function Login() {
                         <p >Password <span className='text-red-600'>*</span> </p>
                         <Input type='password' value={formdata.password} onChange={(e) => setformData({ ...formdata, password: e.target.value })} />
                     </div>
-                    {newAcc === 'SignUp' ? <Button disabled={!!isSigningUp} onClick={(e) => SignupUser(e)} className='bg-secondary text-black lato-bold text-lg hover:bg-zinc-400' >{isSigningUp ? <> <Loader2 className='size-10 animate-spin' /></> : 'SignUp'}</Button> :
-                        <Button disabled={!!islogging} onClick={(e) => Signin(e)} className='bg-secondary text-black lato-bold text-lg hover:bg-zinc-400' >{islogging ? <> <Loader2 className='size-10 animate-spin' /></> : 'SignIn'}</Button>}
+                    {newAcc === 'SignUp' ? <Button disabled={!!isSigningUp} onClick={(e) => SignupUser(e)} className='bg-secondary text-black lato-bold text-lg hover:bg-zinc-400' >{isSigningUp ? <> <AiOutlineLoading3Quarters className='size-10 animate-spin' /></> : 'SignUp'}</Button> :
+                        <Button disabled={!!islogging} onClick={(e) => Signin(e)} className='bg-secondary text-black lato-bold text-lg hover:bg-zinc-400' >{islogging ? <> <AiOutlineLoading3Quarters className='size-10 animate-spin' /></> : 'SignIn'}</Button>}
 
                     {newAcc === 'SignUp' ? <p onClick={() => setnewAcc('SignIn')} className='cursor-pointer'>Already have an account ?</p> :
                         <p onClick={() => setnewAcc('SignUp')} className='cursor-pointer'>Create an account ?</p>}

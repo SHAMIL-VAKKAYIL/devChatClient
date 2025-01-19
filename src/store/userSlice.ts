@@ -1,6 +1,5 @@
 import { axiosInstance } from "@/lib/axios";
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 
 
@@ -25,14 +24,16 @@ interface UserState {
 
 
 //?authentication checking
-// export const checkAuth=createAsyncThunk('users/checkAuth',async(_,{rejectWithValue})=>{
-//     try {
-//         const res=await axiosInstance.get('/auth/check')
-//         return res.data;
-//     } catch (error) {
-
-//     }
-// })
+export const checkAuth=createAsyncThunk('users/checkAuth',async(_,{rejectWithValue})=>{
+    try {
+        const res=await axiosInstance.get('/auth/check')
+        const data=res.data
+        return data;
+    } catch (error:any) {
+        console.log(error.response.data);
+        
+    }
+})
 
 //? user signup
 export const signup=createAsyncThunk('users/signup',async(data)=>{
@@ -51,8 +52,7 @@ export const signin=createAsyncThunk('users/signin',async(data:{email:string,pas
     try {   
     const res=await axiosInstance.post('/auth/login',data)
     toast.success('user logged successfully')
-    return res.data;
-        
+    return res.data;       
     } catch (error:any) {
         toast.error(error.response.data)
         
@@ -60,22 +60,17 @@ export const signin=createAsyncThunk('users/signin',async(data:{email:string,pas
 })
 
 //? user logout
-export const logout=createAsyncThunk('users/signin',async()=>{
+export const logout=createAsyncThunk('users/logout',async()=>{
     try {   
-
+        await axiosInstance.post('auth/logout')
+        toast.success(' logout successfully')
         
     } catch (error) {
-        
+        toast.error('somthing went wrong' )
     }
 })
 
-export const fetchUSer = createAsyncThunk('users/fetchUSer',async()=>{
-    const user = await axiosInstance.get('/auth/users')
-    console.log(user, 'username');
-    return user.data.users;
-    
 
-});
 
 // Type-safe initial state
 const initialState:UserState= {
@@ -99,28 +94,51 @@ const userSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-        // //! auth Check
-        // .addCase(checkAuth.pending,(state)=>{
-        //     state.isCheckingAuth = true;
-        // })
-        // .addCase(checkAuth.fulfilled,(state,action)=>{
-        //     state.authUser = action.payload;
-        //     state.isCheckingAuth = false;
-        // })
-        // .addCase(checkAuth.rejected,(state,action)=>{
-        //     state.authUser=null
-        //     state.isCheckingAuth = false;
-        // })
+        //! auth Check
+        .addCase(checkAuth.pending,(state)=>{
+            state.isCheckingAuth = true;
+        })
+        .addCase(checkAuth.fulfilled,(state,action)=>{
+            state.authUser = action.payload;
+            state.isCheckingAuth = false;
+        })
+        .addCase(checkAuth.rejected,(state)=>{
+            state.authUser=null
+            state.isCheckingAuth = false;
+        })
 
         //! signup
         .addCase(signup.pending,(state)=>{
             state.isSigningUp = true;
         })
-        .addCase(signup.fulfilled,(state,action)=>{
+        .addCase(signup.fulfilled,(state)=>{
             state.isSigningUp = false
         })
         .addCase(signup.rejected,(state)=>{
             state.isSigningUp = false;
+        })
+        //! signin
+        .addCase(signin.pending,(state)=>{
+            state.islogging = true;
+        })
+        .addCase(signin.fulfilled,(state)=>{
+            state.islogging = false
+        })
+        .addCase(signin.rejected,(state)=>{
+            state.islogging = false;
+        })
+        
+        //! logout
+        .addCase(logout.pending,(state)=>{
+            state.isloggingOut = true;
+        })
+        .addCase(logout.fulfilled,(state)=>{
+            state.authUser = null;
+            state.isloggingOut = false
+
+        })
+        .addCase(logout.rejected,(state)=>{
+            state.isloggingOut = false;
         })
         
     }
