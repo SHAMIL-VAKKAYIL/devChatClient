@@ -8,6 +8,7 @@ import { checkAuth } from './store/userSlice'
 import { AppDispatch, RootState } from './store'
 import { Toaster } from 'react-hot-toast'
 import { AiOutlineLoading3Quarters } from 'react-icons/ai'
+import Profile from './components/Profile'
 function App() {
 
 
@@ -41,7 +42,10 @@ function App() {
       <Router>
         <Routes>
           <Route path='/' element={authUser ? <Home /> : <Navigate to={'/Auth'} />} />
+          {/* <Route path='/' element={ <Home /> } /> */}
           <Route path='/Auth' element={authUser ? <Navigate to={'/'} /> : <Login />} />
+          <Route path='/Profile' element={authUser ? <Profile /> : <Login />} />
+          {/* <Route path='/Profile' element={ <Profile />}  /> */}
         </Routes>
       </Router>
       <Toaster />
