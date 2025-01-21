@@ -7,6 +7,7 @@ import { AppDispatch, RootState } from '@/store'
 import toast from 'react-hot-toast'
 import { signin, signup } from '@/store/userSlice'
 import { AiOutlineLoading3Quarters } from "react-icons/ai"
+import { Navigate, useNavigate } from 'react-router-dom'
 
 function Login() {
     interface Iformdata {
@@ -14,11 +15,14 @@ function Login() {
         email: string,
         password: string,
     }
+
+    const navigate = useNavigate()
     const dispatch = useDispatch<AppDispatch>()
+    
     const isSigningUp = useSelector((state: RootState) => state.userreducer.isSigningUp)
     const islogging = useSelector((state: RootState) => state.userreducer.islogging)
 
-    const [formdata, setformData] = useState({
+    const [formdata, setformData] = useState<Iformdata>({
         name: '',
         email: '',
         password: '',
@@ -29,28 +33,28 @@ function Login() {
     const SignupUser = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
 
-        
-        console.log(formdata);
         const success = validateForm()
         if (!success) {
             dispatch(signup(formdata)).unwrap()
             if (isSigningUp === false) {
                 setnewAcc('SignIn')
+                setformData({
+                    name: '',
+                    email: '',
+                    password: ''
+                })
             }
         }
 
     }
     const Signin = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        const { email, password } = formdata
         const success = validateForm()
-        console.log(email);
 
         if (!success) {
-          dispatch(signin(formdata)).unwrap()
-            if (islogging === true) {
-                console.log(islogging);
-
+            dispatch(signin(formdata)).unwrap()
+            if (islogging === false) {
+                navigate('/')
             }
 
         }
@@ -64,9 +68,7 @@ function Login() {
 
     }
 
-
     const [newAcc, setnewAcc] = useState<string>('SignUp')
-
 
     return (
         <div className="bg-[url('./src/assets/images/3137882.jpg')] h-svh bg-no-repeat  bg-center bg-cover   ">

@@ -12,7 +12,7 @@ function Home() {
             <div className="relative">
                 <NavbarTop />
             </div>
-            <div className="flex px-1 gap-1">
+            <div className="flex  px-1 gap-1">
                 <SideNavbar />
                 <Contactlist />
                 <ChatContainer />
