@@ -44,7 +44,7 @@ function App() {
           <Route path='/' element={authUser ? <Home /> : <Navigate to={'/Auth'} />} />
           {/* <Route path='/' element={ <Home /> } /> */}
           <Route path='/Auth' element={authUser ? <Navigate to={'/'} /> : <Login />} />
-          <Route path='/Profile' element={authUser ? <Profile /> : <Login />} />
+          <Route path='/Profile' element={authUser ? <Profile /> : <Navigate to={'/'} />} />
           {/* <Route path='/Profile' element={ <Profile />}  /> */}
         </Routes>
       </Router>
