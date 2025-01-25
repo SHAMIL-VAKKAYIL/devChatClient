@@ -1,88 +1,168 @@
 import avatar from '../assets/images/man.png'
-import { FaCirclePlus } from "react-icons/fa6";
-import { MdOutlineClose } from "react-icons/md";
+import { FaCirclePlus, FaRegCircleXmark } from "react-icons/fa6";
 import { Input } from './ui/input';
-import { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { IoIosSend } from "react-icons/io"
-import { AppDispatch } from '@/store';
-import { getMessages, removechatContainer } from '@/store/chatSlice';
+import { AppDispatch, RootState } from '@/store';
+import { getMessages, removechatContainer, sendMessages } from '@/store/chatSlice';
 import MessageSkeleton from './ui/MessageSkelton';
-
+import { Button } from './ui/button';
+import { formatMessageTime } from '@/lib/utils';
 
 interface IselectUser {
   _id: string;
   fullname: string;
   profilePic: string;
 }
+interface Imessages {
+  _id: string
+  senderId: string
+  text: string
+  createdAt: Date
+  image: string | null
+}
 interface Ichatcontainer {
   selectedUser: IselectUser
-  messages: any[]
+  messages: Imessages[]
   ismessageloading: boolean | null
 }
 function ChatContainer({ selectedUser, messages, ismessageloading }: Ichatcontainer) {
 
 
-  const dispacth = useDispatch<AppDispatch>()
-
+  const dispatch = useDispatch<AppDispatch>()
+  const authUser = useSelector((state: RootState) => state.userreducer.authUser)
   const [text, setText] = useState<string | null>(null)
   const [imagePreview, setImagepreview] = useState<string | null>(null)
-  const fileInputRef = useRef(null)
+  const fileInputRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
-    dispacth(getMessages(selectedUser._id))
+    dispatch(getMessages(selectedUser._id))
 
   }, [selectedUser._id])
 
 
-  const handleImage = (e) =>{
+
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagepreview(reader.result as string);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+
+  const removeImage = () => {
+    setImagepreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const sendMessage = (e: React.ChangeEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!text && !imagePreview) return;
+    try {
+      dispatch(sendMessages({
+        UserId: selectedUser._id,
+        messageData: {
+          text: text,
+          image: imagePreview,
+        }
+      }))
+      setText(null)
+      setImagepreview(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+
+    } catch (error) {
+
+    }
 
   }
-  const removeImage=() =>{
 
-  }
-
-  const sendMessage = async () => {
-
-  }
   if (ismessageloading) return <div className='relative flex-2 flex-grow bg-bg2 rounded-xl rounded-t-2xl overflow-y-scroll scrollHide  hidden sm:flex sm:flex-col  '><MessageSkeleton /></div>
 
   return (
     <div className=' relative flex-2 flex-grow bg-bg2 rounded-xl rounded-t-2xl overflow-y-scroll scrollHide  hidden sm:flex sm:flex-col  '>
+      {/* Header */}
       <div className='w-full p-3 bg-[#36353593]  rounded-t-xl flex  justify-between rounded-b-2xl '>
         <div className='flex items-center gap-2 lato-bold text-secondary'>
           <img src={selectedUser.profilePic || avatar} alt="" className='object-contain w-14 h-14 rounded-full' />
           <p>{selectedUser.fullname}</p>
         </div>
-        <MdOutlineClose size={26} color='#f0f0f0' onClick={() => dispacth(removechatContainer())} />
+        <FaRegCircleXmark size={26} color='#f0f0f0' onClick={() => dispatch(removechatContainer())} />
       </div>
-      <div className=' px-1  rounded-xl flex  w-[100%] mx-auto absolute bottom-1'>
-      {imagePreview && (
-        <div className="mb-3 flex items-center gap-2">
-          <div className="relative">
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
-            />
-            <button
-              onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
-              type="button"
-            >
-              <MdOutlineClose size={20} />
-            </button>
+      {/* Messages */}
+      <div className='flex-1 overflow-y-auto p-4 space-y-4 mb-10'>
+        {messages.map((msg) => (
+          <div key={msg._id} className={`flex ${msg.senderId === authUser._id ? 'justify-end' : 'justify-start'}`}>
+            <div className="flex items-start gap-2 ">
+              <img className={`${msg.senderId === authUser._id ? 'hidden' : 'w-8 h-8 rounded-full'}`} src={selectedUser.profilePic || avatar} alt="user" />
+              <div className={`flex flex-col w-full max-w-[320px] leading-1.5 px-1 py-2 border-gray-200  `}>
+                <div className={`${msg.senderId === authUser._id ? 'justify-end w-full flex ':''}flex items-center space-x-2 rtl:space-x-reverse`}>
+                <span className="text-sm lato-bold text-secondary dark:text-white">{msg.senderId === authUser._id ? 'You' : selectedUser.fullname}</span>
+                <span className="text-xs lato-regular text-secondary">{formatMessageTime(msg.createdAt)}</span>
+              </div>
+              {msg.image && <img src={msg.image} className='sm:max-w-[200px] rounded-md  mb-2' />}
+              {msg.text && <p className={` ${msg.senderId === authUser._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-gray-100 text-sm font-normal py-2.5 px-2 text-gray-900 dark:text-white`}>{msg.text}</p>}
+              {/* <span className="text-sm font-normal text-gray-500 dark:text-gray-400">Delivered</span> */}
+            </div>
           </div>
-        </div>
-      )}F
-        <div className='bg-[#36353593] px-2 rounded-xl flex  w-full mx-auto justify-center items-center'>
-          <FaCirclePlus size={26} color='#f0f0f0' />
-          <Input className='bg-transparent mx-2 outline-none border-none text-secondary' />
-          <IoIosSend size={26} color='#f0f0f0' />
+          </div>
+        ))}
+    </div>
+
+
+      {/* Footer */ }
+  <div className=' px-1  rounded-xl flex flex-col  w-[100%] mx-auto absolute bottom-1'>
+    {imagePreview && (
+      <div className="mb-3 flex items-center gap-2">
+        <div className="relative">
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
+          />
+          <Button
+            onClick={removeImage}
+            className="absolute  w-5 bg-transparent h-5 rounded-full hover:bg-transparent -right-3 -top-2  
+              flex items-center justify-center"
+            type="button"
+          >
+            <FaRegCircleXmark size={24} color='#f0f0f0' />
+          </Button>
         </div>
       </div>
+    )}
+
+    <div className='bg-[#36353593] px-2 rounded-xl flex  w-full mx-auto justify-center items-center'>
+      <Button
+        className='bg-transparent ' onClick={() => fileInputRef.current?.click()} >
+        <FaCirclePlus className={`hidden sm:flex ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`} size={26} color='#f0f0f0' />
+      </Button>
+      <Input
+        className='hidden'
+        type='file'
+        onChange={handleImage}
+        ref={fileInputRef} />
+
+      <Input
+        className='bg-transparent mx-2 outline-none border-none text-secondary h-full'
+        type='text'
+        onChange={(e) => setText(e.target.value)} />
+
+      <Button
+        className='bg-transparent '
+        onClick={sendMessage}
+        disabled={!text?.trim() && !imagePreview}>
+        <IoIosSend size={26} color='#f0f0f0' />
+      </Button>
+
     </div>
+  </div>
+    </div >
   )
 }
 

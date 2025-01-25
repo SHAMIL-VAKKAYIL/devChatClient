@@ -8,6 +8,7 @@ import { axiosInstance } from "@/lib/axios";
 //? get contact list
 export const getUsers = createAsyncThunk('chat/getUsers',async()=>{
     try {
+
         const response=await axiosInstance.get('/message/users')
         return response.data
         
@@ -31,10 +32,9 @@ export const getMessages = createAsyncThunk('chat/getMessages',async(userId)=>{
 })
 
 //? send message
-export const sendMessage = createAsyncThunk('chat/sendMessage',async(messageData,selectedUser)=>{
-
+export const sendMessages = createAsyncThunk('chat/sendMessage',async({UserId,messageData}:any)=>{
     try {
-        const response=await axiosInstance.post(`/message/send/${selectedUser._id}`,messageData)
+        const response=await axiosInstance.post(`/message/send/${UserId}`,messageData)
         return response.data
         
     } catch (error:any) {
@@ -45,7 +45,6 @@ export const sendMessage = createAsyncThunk('chat/sendMessage',async(messageData
 
 //? get selected user
 export const setSelectedUser=createAsyncThunk('chat/setSetlectedUser',async(userId)=>{
-    console.log(userId);
     
 try {
     const response = await axiosInstance.get(`/message/selected/${userId}`) 
@@ -105,6 +104,8 @@ const chatSlice=createSlice({
             state.isMessagesLoading=true
         })
         .addCase(getMessages.fulfilled,(state,action)=>{
+            console.log(action.payload);
+            
             state.messages=action.payload
             state.isMessagesLoading=false
         })
@@ -113,11 +114,8 @@ const chatSlice=createSlice({
         })
 
         //! selected User
-
         .addCase(setSelectedUser.fulfilled,(state,action)=>{
             state.selectedUser=action.payload
-            console.log(state.selectedUser,'check');
-            
         })
         .addCase(setSelectedUser.rejected,(state)=>{
             state.selectedUser=null
@@ -129,7 +127,7 @@ const chatSlice=createSlice({
         })
 
         //! send messages
-        .addCase(sendMessage.fulfilled,(state,action)=>{
+        .addCase(sendMessages.fulfilled,(state,action)=>{
             state.messages=[...state.messages,action.payload]
         })
     }

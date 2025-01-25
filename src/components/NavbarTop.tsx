@@ -1,8 +1,21 @@
 import { GoPerson, GoSignOut } from "react-icons/go";
 import logo from '../assets/images/logo.png'
 import { Link } from "react-router-dom";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog"
+import { useDispatch } from "react-redux";
+import { logout } from "@/store/userSlice";
+import { useRef } from "react";
+
 
 function NavbarTop() {
+    const LogoutAccRef = useRef<HTMLButtonElement | null>(null)
+    const dispatch = useDispatch()
+
+    const LogoutAcc = () => {
+        if (LogoutAccRef.current) LogoutAccRef.current.click()
+    }
+
+
     return (
         <header className="bg-bg2  flex  py-1   rounded-xl  ">
             <div className="flex justify-between items-center w-[96%] lato-regular">
@@ -15,12 +28,26 @@ function NavbarTop() {
                         <GoPerson className="text-secondary" size={18} />
                         <p className="">Profile</p>
                     </Link>
-                    <div className="flex text-secondary items-center gap-1 ">
+                    <div className="flex text-secondary items-center gap-1 " onClick={LogoutAcc}>
                         <GoSignOut className="text-secondary" size={18} />
                         <p>Logout</p>
                     </div>
                 </div>
             </div>
+            <AlertDialog>
+                <AlertDialogTrigger ref={LogoutAccRef} className='flex'></AlertDialogTrigger>
+                {
+                    <AlertDialogContent className='bg-bg2 border-none'>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className='text-secondary'>Do you want to log out of this account ?</AlertDialogTitle>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction className='bg-red-600 hover:bg-red-800' onClick={() => dispatch(logout())} >Logout</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>}
+            </AlertDialog>
+
         </header>
     )
 }

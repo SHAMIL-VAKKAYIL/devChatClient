@@ -22,8 +22,7 @@ function Contactlist({ isuserLoading, users }: IContact) {
 
 
     const selectedUser = useSelector((state: RootState) => state.chatreducer.selectedUser)
-    console.log(selectedUser);
-    
+
     const dispatch = useDispatch<AppDispatch>()
     return (
         <div className='  flex-1 max-w-xs flex flex-col rounded-xl ml-auto bg-[#363636] text-secondary py-5 overflow-y-scroll scrollHide'>
@@ -32,10 +31,9 @@ function Contactlist({ isuserLoading, users }: IContact) {
                 <p className='lato-bold'>Contacts</p>
             </div>
             <div className='flex flex-col gap-1 py-5'>
-
                 {
                     users.map((user) => (
-                        <div key={user._id} onClick={() => dispatch(setSelectedUser(user._id))} className={`hover:bg-bg2 w-full py-3  ${selectedUser?._id===user._id? 'bg-bg2':''}`}>
+                        <div key={user._id} onClick={() => dispatch(setSelectedUser(user._id))} className={`hover:bg-bg2 w-full py-3  ${selectedUser?._id === user._id ? 'bg-bg2' : ''}`}>
                             <Button className=' w-full flex justify-start items-center  bg-transparent  hover:bg-transparent   '>
                                 <img src={user.profilePic ? user.profilePic : avatar} alt="" className='w-12  h-12  object-contain rounded-full' />
                                 <div>
