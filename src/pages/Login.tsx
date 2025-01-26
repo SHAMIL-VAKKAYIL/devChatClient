@@ -5,25 +5,25 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
 // import { Loader2, Users } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { signin, signup } from '@/store/userSlice'
+import { setSocket, signin, signup } from '@/store/userSlice'
 import { AiOutlineLoading3Quarters } from "react-icons/ai"
 import { Navigate, useNavigate } from 'react-router-dom'
 
 function Login() {
     interface Iformdata {
-        name?: string,
-        email: string,
-        password: string,
+        fullname?: string ,
+        email: string ,
+        password: string ,
     }
 
     const navigate = useNavigate()
     const dispatch = useDispatch<AppDispatch>()
-    
+
     const isSigningUp = useSelector((state: RootState) => state.userreducer.isSigningUp)
     const islogging = useSelector((state: RootState) => state.userreducer.islogging)
 
     const [formdata, setformData] = useState<Iformdata>({
-        name: '',
+        fullname: '',
         email: '',
         password: '',
     })
@@ -39,7 +39,7 @@ function Login() {
             if (isSigningUp === false) {
                 setnewAcc('SignIn')
                 setformData({
-                    name: '',
+                    fullname: '',
                     email: '',
                     password: ''
                 })
@@ -52,10 +52,13 @@ function Login() {
         const success = validateForm()
 
         if (!success) {
-            dispatch(signin(formdata)).unwrap()
-            if (islogging === false) {
-                navigate('/')
-            }
+            dispatch(signin(formdata)).unwrap().then(() => {
+                if (islogging === false) {
+                    navigate('/')
+                    dispatch(setSocket)
+
+                }
+            })
 
         }
     }

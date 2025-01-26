@@ -1,8 +1,6 @@
 import avatar from '../assets/images/man.png'
 import { MdModeEditOutline } from "react-icons/md";
 import { FaCircle } from "react-icons/fa";
-import { Input } from './ui/input';
-import { Button } from './ui/button';
 import { FaRegCircleXmark } from "react-icons/fa6";
 import { GoMail, GoPerson, GoSignOut, GoTrash } from "react-icons/go";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog"
@@ -12,6 +10,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { deleteAccount, logout, updateProfile } from '@/store/userSlice';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai'
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 function Profile() {
 
     interface IUser {

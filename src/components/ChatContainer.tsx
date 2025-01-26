@@ -107,7 +107,6 @@ function ChatContainer({ selectedUser, messages, ismessageloading }: Ichatcontai
               </div>
               {msg.image && <img src={msg.image} className='sm:max-w-[200px] rounded-md  mb-2' />}
               {msg.text && <p className={` ${msg.senderId === authUser._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-gray-100 text-sm font-normal py-2.5 px-2 text-gray-900 dark:text-white`}>{msg.text}</p>}
-              {/* <span className="text-sm font-normal text-gray-500 dark:text-gray-400">Delivered</span> */}
             </div>
           </div>
           </div>

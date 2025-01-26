@@ -1,16 +1,31 @@
-import { io } from "socket.io-client";
-
+import { io, Socket } from "socket.io-client";
 
 const SOCK_URL = "http://localhost:3000";
+let socket:Socket|null;
 
-export const socket=io(SOCK_URL,{
-    autoConnect:false
-})
 
-export const connectSocket=()=>{
-    socket.connect()
+export const connectSocket=(authId:string) => {
+        if(!socket){
+            socket=io(SOCK_URL,{
+                query:{userId:authId}
+            })
+            socket.connect()
+
+            socket.on('connect',() =>{
+                console.log('connected');
+                
+            })
+        }
+
+        return socket
+    
 }
 
-export const disconnectSocket=()=>{
-    socket.disconnect()
+export const getSocket =()=>socket
+
+export const disconnectSocket = () => {
+    if(socket){
+        socket.disconnect()
+        socket=null
+    }
 }

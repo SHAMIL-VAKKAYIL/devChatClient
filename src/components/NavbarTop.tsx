@@ -3,18 +3,24 @@ import logo from '../assets/images/logo.png'
 import { Link } from "react-router-dom";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog"
 import { useDispatch } from "react-redux";
-import { logout } from "@/store/userSlice";
+import {  disSocket, logout } from "@/store/userSlice";
 import { useRef } from "react";
+import { AppDispatch } from "@/store";
 
 
 function NavbarTop() {
     const LogoutAccRef = useRef<HTMLButtonElement | null>(null)
-    const dispatch = useDispatch()
+    const dispatch = useDispatch<AppDispatch>()
 
     const LogoutAcc = () => {
         if (LogoutAccRef.current) LogoutAccRef.current.click()
     }
+    const Logout = () => {
+        dispatch(logout()).then(() => {
+            dispatch(disSocket)
 
+        })
+    }
 
     return (
         <header className="bg-bg2  flex  py-1   rounded-xl  ">
@@ -43,7 +49,7 @@ function NavbarTop() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction className='bg-red-600 hover:bg-red-800' onClick={() => dispatch(logout())} >Logout</AlertDialogAction>
+                            <AlertDialogAction className='bg-red-600 hover:bg-red-800' onClick={Logout} >Logout</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>}
             </AlertDialog>

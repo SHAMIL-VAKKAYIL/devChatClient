@@ -1,28 +1,34 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { useDispatch, UseDispatch, useSelector } from 'react-redux'
-import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffect } from 'react'
 import './App.css'
 import Login from './pages/Login'
 import Home from './pages/Home'
-import { checkAuth } from './store/userSlice'
+import { checkAuth, setSocket } from './store/userSlice'
 import { AppDispatch, RootState } from './store'
 import { Toaster } from 'react-hot-toast'
 import { AiOutlineLoading3Quarters } from 'react-icons/ai'
-import Profile from './components/Profile'
+import Profile from './pages/Profile'
 function App() {
 
 
-  const dispacth = useDispatch<AppDispatch>()
+  const dispatch = useDispatch<AppDispatch>()
 
-  const { authUser, isCheckingAuth } = useSelector((state: RootState) => ({
+  const { authUser, isCheckingAuth, onlineUsers } = useSelector((state: RootState) => ({
     authUser: state.userreducer.authUser,
-    isCheckingAuth: state.userreducer.isCheckingAuth
+    isCheckingAuth: state.userreducer.isCheckingAuth,
+    onlineUsers: state.userreducer.onlineUsers
   }))
+  console.log(onlineUsers, 'online');
+
+
 
   useEffect(() => {
-    dispacth(checkAuth())
-  }, [dispacth])
+    dispatch(checkAuth()).then(() => {
+      dispatch(setSocket())
+    })
 
+  }, [dispatch])
 
 
   if (isCheckingAuth) {

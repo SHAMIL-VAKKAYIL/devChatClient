@@ -1,11 +1,14 @@
 import { axiosInstance } from "@/lib/axios";
+import { connectSocket, disconnectSocket } from "@/services/socket";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 
 
 
+
+// initialState's type declaration 
 interface UserState {
-    onlineUsers:[]
+    onlineUsers:any
     status:'idle'|'loading'|'success'|'failed';
     error: string | null;
     authUser:any,
@@ -15,6 +18,7 @@ interface UserState {
     isCheckingAuth:boolean|null,
     isDeleteAcc:boolean| null,
     isUpdatingProfile:boolean|null,
+    // socket: object | null
 }
 
 
@@ -96,8 +100,26 @@ try {
      }
  })
 
+ export const setSocket =()=>(dispatch:any,getState:any)=>{
+    
+    
+    const {authUser}=getState().userreducer
 
-// Type-safe initial state
+    const socket=connectSocket(authUser._id)
+    
+    socket.on('getOnlineUsers',(userIds)=>{
+        dispatch(setOnlineUsers(userIds))
+    })
+ }
+
+ export const disSocket=()=>{
+    disconnectSocket()
+ }
+
+
+
+
+
 const initialState:UserState= {
     onlineUsers: [],
     status: 'idle',
@@ -108,7 +130,8 @@ const initialState:UserState= {
     islogging: null,
     isloggingOut: null,
     isDeleteAcc:null,
-    isUpdatingProfile:null
+    isUpdatingProfile:null,
+    // socket: null
 
 
 };
@@ -117,7 +140,20 @@ const userSlice = createSlice({
     name: 'users',
     initialState,
     reducers: {
-        // Add type-safe reducers here if needed
+        setOnlineUsers: (state, { payload }) => {
+            state.onlineUsers = payload;
+          },
+        // setSocket:(state,{payload})=>{
+        //     state.socket = payload
+        //     console.log(payload);
+            
+        // },
+
+        // disconnectSocket: (state) => {
+        //     if (state.socket?.connected) state.socket.disconnect();
+        //     state.socket = null;
+        //     state.onlineUsers = [];
+        // },
     },
     extraReducers: (builder) => {
         builder
@@ -170,7 +206,7 @@ const userSlice = createSlice({
         })
         //! account deletion
         .addCase(deleteAccount.pending,(state)=>{
-            state.isDeleteAcc=true
+            state.isDeleteAcc = true
         })
         .addCase(deleteAccount.fulfilled,(state)=>{
             state.authUser = null
@@ -182,7 +218,7 @@ const userSlice = createSlice({
 
         //! updateProfile
         .addCase(updateProfile.pending,(state)=>{
-            state.isUpdatingProfile=true
+            state.isUpdatingProfile = true
         })
         .addCase(updateProfile.fulfilled,(state,action)=>{
             
@@ -192,7 +228,9 @@ const userSlice = createSlice({
         .addCase(updateProfile.rejected,(state)=>{
             state.isUpdatingProfile = false
         })
+
     }
 });
 
+export const { setOnlineUsers } = userSlice.actions
 export default userSlice.reducer;
