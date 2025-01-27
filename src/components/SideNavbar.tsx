@@ -3,7 +3,7 @@ import avatar from '../assets/images/man.png'
 
 function SideNavbar() {
   return (
-    <nav className='rounded-xl max-w-xs bg-bg2  py-2 px-4 text-secondary overflow-hidden flex flex-col items-center '>
+    <nav className=' rounded-xl max-w-xs bg-bg2  py-2 px-4 text-secondary overflow-hidden flex flex-col items-center '>
       <h1 className='lato-regular'>Groups</h1>
       <div className='  flex  flex-col gap-5 max-h-[60svh] overflow-y-scroll scroll-smooth scrollHide mt-4'>
         {/* group list */}

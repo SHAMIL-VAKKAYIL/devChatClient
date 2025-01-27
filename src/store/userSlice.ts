@@ -102,9 +102,7 @@ try {
 
  export const setSocket =()=>(dispatch:any,getState:any)=>{
     
-    
     const {authUser}=getState().userreducer
-
     const socket=connectSocket(authUser._id)
     
     socket.on('getOnlineUsers',(userIds)=>{

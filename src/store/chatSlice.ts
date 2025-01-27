@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 import { axiosInstance } from "@/lib/axios";
+import { getSocket } from "@/services/socket";
 
 
 
@@ -19,7 +20,7 @@ export const getUsers = createAsyncThunk('chat/getUsers',async()=>{
 })
 
 //? get messages
-export const getMessages = createAsyncThunk('chat/getMessages',async(userId)=>{
+export const getMessages = createAsyncThunk('chat/getMessages',async(userId:string)=>{
 
     try {
         const response=await axiosInstance.get(`/message/${userId}`)
@@ -44,7 +45,7 @@ export const sendMessages = createAsyncThunk('chat/sendMessage',async({UserId,me
 })
 
 //? get selected user
-export const setSelectedUser=createAsyncThunk('chat/setSetlectedUser',async(userId)=>{
+export const setSelectedUser=createAsyncThunk('chat/setSetlectedUser',async(userId:string)=>{
     
 try {
     const response = await axiosInstance.get(`/message/selected/${userId}`) 
@@ -58,15 +59,33 @@ try {
 //? remove chat container
 export const removechatContainer= createAsyncThunk('chat/removechatContainer',async()=>{})
 
+export const subscribeToMessage=()=>(dispatch:any,getState:any)=>{
+    
+    const {selectedUser} = getState().chatreducer
+    if(!selectedUser)return
 
+    const socket = getSocket()
+    console.log(socket);
+
+    socket?.on('newMessage',(newMessage)=>{
+        if(newMessage.senderId === selectedUser._id)
+        dispatch(addNewMessage(newMessage))
+    })
+}
+export const unSubscribeMessages =()=>{
+    const socket = getSocket()
+    console.log(socket);
+    
+    socket?.off('newMessage')
+}
 
 
 interface IinitialState{
     messages:Array<any>,
     users:Array<any>,
-    selectedUser:any|null,
-    isUserLoading:boolean|null,
-    isMessagesLoading:boolean|null,
+    selectedUser:any | null,
+    isUserLoading:boolean | null,
+    isMessagesLoading:boolean | null,
 }
 
 const initialState:IinitialState={
@@ -82,6 +101,11 @@ const chatSlice=createSlice({
     name: 'chat',
     initialState,
     reducers:{
+        addNewMessage: (state,action)=>{
+            state.messages=[...state.messages,action.payload]
+            console.log(state.messages);
+            
+        }
 
     },
     extraReducers:(builder)=>{
@@ -135,4 +159,5 @@ const chatSlice=createSlice({
     
 })
 
+export const {addNewMessage}=chatSlice.actions
 export default chatSlice.reducer

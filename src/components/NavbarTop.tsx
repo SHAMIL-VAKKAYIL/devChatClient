@@ -1,7 +1,7 @@
 import { GoPerson, GoSignOut } from "react-icons/go";
 import logo from '../assets/images/logo.png'
 import { Link } from "react-router-dom";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog"
 import { useDispatch } from "react-redux";
 import {  disSocket, logout } from "@/store/userSlice";
 import { useRef } from "react";
@@ -34,7 +34,7 @@ function NavbarTop() {
                         <GoPerson className="text-secondary" size={18} />
                         <p className="">Profile</p>
                     </Link>
-                    <div className="flex text-secondary items-center gap-1 " onClick={LogoutAcc}>
+                    <div className="sm:flex text-secondary items-center gap-1 hidden" onClick={LogoutAcc}>
                         <GoSignOut className="text-secondary" size={18} />
                         <p>Logout</p>
                     </div>

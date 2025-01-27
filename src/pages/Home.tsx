@@ -9,13 +9,7 @@ import { useEffect } from "react";
 import { getUsers } from "@/store/chatSlice";
 
 function Home() {
-    interface Ichat {
-        messages: Array<any>,
-        users: Array<any>,
-        selectedUser: any | null,
-        isUserLoading: boolean | null,
-        isMessagesLoading: boolean | null,
-    }
+ 
 
     const dispatch = useDispatch<AppDispatch>()
 
@@ -28,30 +22,30 @@ function Home() {
         messages: state.chatreducer.messages,
     }))
 
-    const onlineUsers = []
 
     useEffect(() => {
         dispatch(getUsers())
     }, [getUsers])
 
     return (
-        <div className="h-svh bg-primary flex flex-col gap-1">
-            <div className="relative p-1 h-[8svh]">
+        <div className="h-screen bg-primary overflow-hidden flex flex-col ">
+            <div className="relative p-1 ">
                 <NavbarTop />
             </div>
-            <div className="flex  px-1 gap-1 h-[91svh]">
+            <div className="flex  px-1 w-full mx-auto gap-1 h-[90.7svh]">
                 <SideNavbar />
-                <Contactlist
-                    isuserLoading={isUserLoading}
-                    users={users}
-                />
-                {selectedUser ?
-                    <ChatContainer
-                        selectedUser={selectedUser}
-                        messages={messages}
-                        ismessageloading={isMessagesLoading}
+                    <Contactlist
+                        isuserLoading={isUserLoading}
+                        users={users}
+                        classStyle={selectedUser?'hidden sm:flex':''}
+                    />
+                    {selectedUser ?
+                        <ChatContainer
+                            selectedUser={selectedUser}
+                            messages={messages}
+                            ismessageloading={isMessagesLoading}
 
-                    /> : <NochatContainer />}
+                        /> : <NochatContainer />}
             </div>
         </div>
     )

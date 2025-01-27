@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 
 const SOCK_URL = "http://localhost:3000";
-let socket:Socket|null;
+let socket:Socket | null;
 
 
 export const connectSocket=(authId:string) => {
