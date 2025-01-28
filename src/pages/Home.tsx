@@ -27,6 +27,8 @@ function Home() {
         dispatch(getUsers())
     }, [getUsers])
 
+    
+
     return (
         <div className="h-screen bg-primary overflow-hidden flex flex-col ">
             <div className="relative p-1 ">

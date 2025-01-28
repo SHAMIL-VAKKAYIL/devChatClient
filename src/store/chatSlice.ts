@@ -5,6 +5,19 @@ import { getSocket } from "@/services/socket";
 
 
 
+export const features=(feature)=>{
+    toast(`${feature} is under development. Stay tuned for updates!`,
+        {
+          icon: '👨‍💻',
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+          },
+        }
+      );
+}
+
 
 //? get contact list
 export const getUsers = createAsyncThunk('chat/getUsers',async()=>{
@@ -46,6 +59,17 @@ export const sendMessages = createAsyncThunk('chat/sendMessage',async({UserId,me
 
 //? get selected user
 export const setSelectedUser=createAsyncThunk('chat/setSetlectedUser',async(userId:string)=>{
+    
+try {
+    const response = await axiosInstance.get(`/message/selected/${userId}`) 
+    return response.data
+} catch (error:any) {
+    toast.error(error.response.data.message)
+    
+}
+})
+//? get selected user
+export const setSelectedGroup=createAsyncThunk('chat/setSetlectedGroup',async(userId:string)=>{
     
 try {
     const response = await axiosInstance.get(`/message/selected/${userId}`) 

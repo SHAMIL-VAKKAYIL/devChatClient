@@ -18,7 +18,6 @@ interface UserState {
     isCheckingAuth:boolean|null,
     isDeleteAcc:boolean| null,
     isUpdatingProfile:boolean|null,
-    // socket: object | null
 }
 
 
@@ -129,9 +128,6 @@ const initialState:UserState= {
     isloggingOut: null,
     isDeleteAcc:null,
     isUpdatingProfile:null,
-    // socket: null
-
-
 };
 
 const userSlice = createSlice({
@@ -141,17 +137,6 @@ const userSlice = createSlice({
         setOnlineUsers: (state, { payload }) => {
             state.onlineUsers = payload;
           },
-        // setSocket:(state,{payload})=>{
-        //     state.socket = payload
-        //     console.log(payload);
-            
-        // },
-
-        // disconnectSocket: (state) => {
-        //     if (state.socket?.connected) state.socket.disconnect();
-        //     state.socket = null;
-        //     state.onlineUsers = [];
-        // },
     },
     extraReducers: (builder) => {
         builder
