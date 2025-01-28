@@ -34,7 +34,7 @@ function Home() {
             <div className="relative p-1 ">
                 <NavbarTop />
             </div>
-            <div className="flex  px-1 w-full mx-auto gap-1 h-[90.7svh]">
+            <div className="flex  px-1 w-full mx-auto gap-1 h-[91.5svh] pb-1">
                 <SideNavbar />
                     <Contactlist
                         isuserLoading={isUserLoading}

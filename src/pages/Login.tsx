@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
 // import { Loader2, Users } from 'lucide-react'
@@ -11,9 +11,9 @@ import { Navigate, useNavigate } from 'react-router-dom'
 
 function Login() {
     interface Iformdata {
-        fullname?: string ,
-        email: string ,
-        password: string ,
+        fullname: string,
+        email: string,
+        password: string,
     }
 
     const navigate = useNavigate()
@@ -22,7 +22,7 @@ function Login() {
     const isSigningUp = useSelector((state: RootState) => state.userreducer.isSigningUp)
     const islogging = useSelector((state: RootState) => state.userreducer.islogging)
 
-    const [formdata, setformData] = useState<Iformdata>({
+    const [formdata, setformData] = useState({
         fullname: '',
         email: '',
         password: '',
@@ -36,14 +36,6 @@ function Login() {
         const success = validateForm()
         if (!success) {
             dispatch(signup(formdata)).unwrap()
-            if (isSigningUp === false) {
-                setnewAcc('SignIn')
-                setformData({
-                    fullname: '',
-                    email: '',
-                    password: ''
-                })
-            }
         }
 
     }
@@ -52,18 +44,30 @@ function Login() {
         const success = validateForm()
 
         if (!success) {
-            dispatch(signin(formdata)).unwrap().then(() => {
-                if (islogging === false) {
-                    navigate('/')
-                    dispatch(setSocket)
-
-                }
-            })
-
+            dispatch(signin(formdata)).unwrap()
         }
     }
+    useEffect(() => {
+        if (isSigningUp === false) {
+            setnewAcc('SignIn')
+            setformData({
+                fullname: '',
+                email: '',
+                password: ''
+            })
+        }
+
+    }, [isSigningUp])
+
+    useEffect(() => {
+        if (islogging === false) {
+            navigate('/')
+            dispatch(setSocket)
+        }
+    }, [islogging])
+
     const validateForm = () => {
-        if (newAcc === 'SignUp' && !formdata.name?.trim()) return toast.error('Username is required')
+        if (newAcc === 'SignUp' && !formdata.fullname?.trim()) return toast.error('Username is required')
         if (!formdata.email.trim()) return toast.error('Email is required')
         if (!/^\S+@\S+\.\S+$/i.test(formdata.email)) return toast.error('Invalid email format')
         if (formdata.password.length < 5) return toast.error('Password must be at least 8 characters long')
@@ -81,7 +85,7 @@ function Login() {
                         <p className='text-center text-xl md:text-2xl lato-bold '>Create Your Account </p>
                         <div>
                             <p >Username <span className='text-red-600'>*</span> </p>
-                            <Input type='text' value={formdata.name} onChange={(e) => setformData({ ...formdata, name: e.target.value })} />
+                            <Input type='text' value={formdata.fullname} onChange={(e) => setformData({ ...formdata, fullname: e.target.value })} />
                         </div>
                     </> : <p className='text-center text-xl md:text-2xl lato-bold '>Welcome back!</p>}
                     <div>

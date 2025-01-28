@@ -91,8 +91,9 @@ try {
 //? deleting account
  export const deleteAccount=createAsyncThunk('users/deleteAccount',async()=>{
      try {   
-         await axiosInstance.delete('/auth/delete')
-         toast.success('Account deleted successfully')
+        const res= await axiosInstance.delete('/auth/delete')
+        const data=res.data.message
+         toast.success(data)
         
      } catch (error) {
          toast.error('somthing went wrong' )

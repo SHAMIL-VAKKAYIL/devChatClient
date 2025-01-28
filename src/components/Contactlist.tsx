@@ -34,14 +34,14 @@ function Contactlist({ isuserLoading, users, classStyle }: IContact) {
 
     const dispatch = useDispatch<AppDispatch>()
     return (
-        <div className={`${classStyle} flex-2 flex-grow w-full max-w-sm sm:max-w-xs flex gap-3 flex-col rounded-xl mx-auto bg-[#36353593] text-secondary py-5 overflow-y-scroll scrollHide`}>
+        <div className={`${classStyle} flex-2 flex-grow w-full sm:max-w-xs flex gap-3 flex-col rounded-xl mx-auto bg-[#36353593] text-secondary py-5 overflow-y-scroll scrollHide`}>
             <div className='flex w-[90%] mx-auto items-center justify-start  py-3 px-3 gap-2 border-b-2 border-[#646363]'>
                 <IoMdContacts size={22} />
                 <p className='lato-bold'>Contacts</p>
             </div>
-            <div className='flex w-[90%] bg-bg2 mx-auto items-center justify-start  py-1 px-3 gap-2  rounded-xl' onClick={()=>features('Advance Searching')}>
-                <Input className=' bg-transparent mx-2 outline-none border-none text-secondary h-full'/>
-                <FiSearch size={24}/>
+            <div className='flex w-[90%] bg-bg2 mx-auto items-center justify-start  py-1 px-3 gap-2  rounded-xl' onClick={() => features('Advance Searching')}>
+                <Input placeholder='Search By Username' className='lato-regular  bg-transparent mx-2 outline-none border-none text-secondary h-full' />
+                <FiSearch size={24} />
             </div>
             <div className='flex flex-col gap-1 py-5 pr-5 '>
                 {
@@ -54,7 +54,7 @@ function Contactlist({ isuserLoading, users, classStyle }: IContact) {
 
                                 </div>
                                 <div>
-                                    <p className='text-base lato-bold  '>{user.fullname}</p>
+                                    <p className='text-base lato-bold text-wrap  '>{user.fullname}</p>
                                     <p className='text-sm lato-regular text-[#939191ec] text-start'>{onlineUsers.includes(user._id) ? 'online' : 'offline'}</p>
                                 </div>
                             </Button>
