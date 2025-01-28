@@ -5,12 +5,13 @@ import { getSocket } from "@/services/socket";
 
 
 
-export const features=(feature)=>{
+export const features=(feature:string)=>{
     toast(`${feature} is under development. Stay tuned for updates!`,
         {
           icon: '👨‍💻',
           style: {
             borderRadius: '10px',
+            border: '2px solid green', // Updated to include border thickness and color
             background: '#333',
             color: '#fff',
           },
