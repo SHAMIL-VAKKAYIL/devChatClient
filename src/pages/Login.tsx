@@ -44,7 +44,11 @@ function Login() {
         const success = validateForm()
 
         if (!success) {
-            dispatch(signin(formdata)).unwrap()
+            dispatch(signin(formdata)).then(() => {
+                navigate('/')
+                dispatch(setSocket)
+                window.location.reload()
+            })
         }
     }
     useEffect(() => {
@@ -59,18 +63,12 @@ function Login() {
 
     }, [isSigningUp])
 
-    useEffect(() => {
-        if (islogging === false) {
-            navigate('/')
-            dispatch(setSocket)
-        }
-    }, [islogging])
 
     const validateForm = () => {
         if (newAcc === 'SignUp' && !formdata.fullname?.trim()) return toast.error('Username is required')
         if (!formdata.email.trim()) return toast.error('Email is required')
         if (!/^\S+@\S+\.\S+$/i.test(formdata.email)) return toast.error('Invalid email format')
-        if (formdata.password.length < 5) return toast.error('Password must be at least 8 characters long')
+        if (formdata.password.length < 6) return toast.error('Password must be at least 6 characters long')
         if (!formdata.password.trim()) return toast.error('Password is required')
 
     }

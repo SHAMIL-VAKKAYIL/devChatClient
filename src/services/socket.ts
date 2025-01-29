@@ -1,6 +1,7 @@
 import { io, Socket } from "socket.io-client";
 
 const SOCK_URL = "http://localhost:3000";
+
 let socket:Socket | null;
 
 
