@@ -9,17 +9,18 @@ import { useEffect } from "react";
 import { getUsers } from "@/store/chatSlice";
 
 function Home() {
- 
+
 
     const dispatch = useDispatch<AppDispatch>()
 
-    const { selectedUser, users, isUserLoading, isMessagesLoading, messages } = useSelector((state: RootState) => ({
+    const { selectedUser, users, isUserLoading, isMessagesLoading, messages, selectedGroup } = useSelector((state: RootState) => ({
 
         users: state.chatreducer.users,
         selectedUser: state.chatreducer.selectedUser,
         isUserLoading: state.chatreducer.isUserLoading,
         isMessagesLoading: state.chatreducer.isMessagesLoading,
         messages: state.chatreducer.messages,
+        selectedGroup: state.chatreducer.selectedGroup
     }))
 
 
@@ -27,7 +28,7 @@ function Home() {
         dispatch(getUsers())
     }, [getUsers])
 
-    
+
 
     return (
         <div className="h-screen bg-primary overflow-hidden flex flex-col ">
@@ -36,18 +37,20 @@ function Home() {
             </div>
             <div className="flex  px-1 w-full mx-auto gap-1 h-[91.5svh] pb-1">
                 <SideNavbar />
-                    <Contactlist
-                        isuserLoading={isUserLoading}
+                <Contactlist
+                    isuserLoading={isUserLoading}
+                    users={users}
+                    classStyle={selectedUser || selectedGroup ? 'hidden sm:flex' : ''}
+                />
+                {selectedUser || selectedGroup ?
+                    <ChatContainer
+                        selectedUser={selectedUser}
+                        messages={messages}
+                        ismessageloading={isMessagesLoading}
+                        selectedGroup={selectedGroup}
                         users={users}
-                        classStyle={selectedUser?'hidden sm:flex':''}
-                    />
-                    {selectedUser ?
-                        <ChatContainer
-                            selectedUser={selectedUser}
-                            messages={messages}
-                            ismessageloading={isMessagesLoading}
 
-                        /> : <NochatContainer />}
+                    /> : <NochatContainer />}
             </div>
         </div>
     )

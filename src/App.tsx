@@ -19,7 +19,6 @@ function App() {
     isCheckingAuth: state.userreducer.isCheckingAuth,
     onlineUsers: state.userreducer.onlineUsers
   }))
-  console.log(onlineUsers, 'online');
 
 
 

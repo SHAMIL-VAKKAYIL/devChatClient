@@ -3,11 +3,10 @@ import { Input } from '@/components/ui/input'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
-// import { Loader2, Users } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { setSocket, signin, signup } from '@/store/userSlice'
 import { AiOutlineLoading3Quarters } from "react-icons/ai"
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 function Login() {
     interface Iformdata {
