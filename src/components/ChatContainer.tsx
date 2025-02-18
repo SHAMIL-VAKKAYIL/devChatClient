@@ -1,11 +1,11 @@
 import avatar from '../assets/images/man.png'
-import { FaCirclePlus, FaRegCircleXmark } from "react-icons/fa6";
+import { FaCircleMinus, FaCirclePlus, FaRegCircleXmark } from "react-icons/fa6";
 import { Input } from './ui/input';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { IoIosSend } from "react-icons/io"
 import { AppDispatch, RootState } from '@/store';
-import { addGroupMember, getMessages, removechatContainer, removeGroupMember, sendMessages, subscribeToMessage, unSubscribeMessages } from '@/store/chatSlice';
+import { addGroupMember, getGroupMembers, getMessages, removechatContainer, removeGroupMember, sendMessages, subscribeToMessage, unSubscribeMessages } from '@/store/chatSlice';
 import MessageSkeleton from './ui/MessageSkelton';
 import { Button } from './ui/button';
 import { formatMessageTime } from '@/lib/utils';
@@ -13,9 +13,12 @@ import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescript
 import { Checkbox } from './ui/checkbox';
 
 interface IselectUser {
-  _id: string|null;
+  _id: string | null;
   fullname: string;
   profilePic: string;
+}
+interface IgroupMembers {
+  _id: string | null;
 }
 interface IselectGroup {
   _id: string;
@@ -52,25 +55,32 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
 
 
   }))
+  console.log(groupMembers, 'members');
+
 
   const [text, setText] = useState<string | null>(null)
   const [imagePreview, setImagepreview] = useState<string | null>(null)
+  // const [checkExUser, setCheckExUser] = useState(false)
 
   const fileInputRef = useRef<HTMLButtonElement | null>(null)
   const MessageEndRef = useRef<HTMLDivElement | null>(null)
   const addMemberRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
-    dispatch(getMessages(selectedUser?._id))
+    (selectedUser || selectedGroup) && dispatch(getMessages({ userId: selectedUser?._id, GroupId: selectedGroup?._id }))
     dispatch(subscribeToMessage())
-  }, [selectedUser?._id, subscribeToMessage])
+  }, [selectedUser?._id, subscribeToMessage, selectedGroup?._id])
 
+  
   useEffect(() => {
     if (MessageEndRef.current && messages) {
       MessageEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-
   }, [messages])
+
+  useEffect(() => {
+    selectedGroup && dispatch(getGroupMembers({ selectedGroupId: selectedGroup?._id }))
+  }, [selectedGroup])
 
   const clearChatcontainer = () => {
     dispatch(removechatContainer())
@@ -78,6 +88,7 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
   }
 
 
+  //? image handling
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const file = e.target.files?.[0];
@@ -95,15 +106,16 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
     setImagepreview(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
+
+  //? manging the group members
   const openAddMember = () => {
     addMemberRef.current?.click()
   }
-  const addmember = (userId: string) => {
-    const exmember = groupMembers?.find(member => member._id === userId)
-    if (exmember) {
-      dispatch(removeGroupMember({ userId, selectedGroup?._id }))
-    }
-    dispatch(addGroupMember({ userId, selectedGroup?._id }))
+  const addmember = (selectedUserID: string | null) => {
+    dispatch(addGroupMember({ selectedUserID, selectedGroupId: selectedGroup?._id }))
+  }
+  const removeMember = (selectedUserID: string | null) => {
+    dispatch(removeGroupMember({ selectedUserID, selectedGroupId: selectedGroup?._id }))
   }
 
   const sendMessage = (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -111,22 +123,25 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
     if (!text && !imagePreview) return;
     try {
       dispatch(sendMessages({
-        UserId: selectedUser._id,
+        UserId: selectedUser?._id,
+        GroupId: selectedGroup?._id,
         messageData: {
           text: text,
           image: imagePreview,
         }
+
       })).unwrap().then(() => {
 
         setText('')
         setImagepreview(null)
         if (fileInputRef.current) fileInputRef.current.value = ''
       })
-
     } catch (error) {
       console.error(error);
     }
   }
+  console.log(messages);
+  
 
   if (ismessageloading) return <div className='relative flex-2 flex-grow bg-bg2 rounded-xl rounded-t-2xl overflow-y-scroll scrollHide  hidden sm:flex sm:flex-col  '><MessageSkeleton /></div>
 
@@ -153,8 +168,8 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
       </div>}
       {/* Messages */}
       <div className='flex-1 overflow-y-auto p-4 space-y-4 mb-10'>
-        {messages?.map((msg) => (
-          <div key={msg._id}
+        {messages?.map((msg,index) => (
+          <div key={msg?._id || `msg-${index}`}
             ref={MessageEndRef}
             className={`flex ${msg.senderId === authUser._id ? 'justify-end' : 'justify-start'}`}>
             <div className="flex items-start gap-2 ">
@@ -221,6 +236,7 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
             <IoIosSend size={26} color='#f0f0f0' />
           </Button>
 
+
         </div>
       </div>
       <AlertDialog>
@@ -229,8 +245,9 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
           <AlertDialogHeader className='h-[30vh] overflow-y-auto'>
             <AlertDialogTitle className='text-secondary  lato-bold'>Add your Dev friend</AlertDialogTitle>
             {users?.map((user) => (
-              <AlertDialogDescription className='text-secondary text-lg flex items-center gap-1 lato-regular ' >
-                <Checkbox id={user._id} onClick={() => addmember(user._id)} />
+
+              <AlertDialogDescription key={user._id} className='text-secondary text-lg flex items-center gap-2 py-1 lato-regular ' >
+                {groupMembers?.includes(user._id) ? <FaCircleMinus className="text-zinc-400 hover:text-red-600" size={20} onClick={() => removeMember(user._id)} /> : <FaCirclePlus className="text-zinc-400 hover:text-emerald-500" size={20} onClick={() => addmember(user._id)} />}
                 {user?.fullname}
               </AlertDialogDescription>
             ))}

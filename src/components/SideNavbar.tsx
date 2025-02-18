@@ -47,7 +47,7 @@ function SideNavbar() {
       <div className='  flex  flex-col gap-5 max-h-[60svh] overflow-y-scroll scroll-smooth scrollHide mt-4'>
         {/* group list */}
         {getAllGroups.map((grps: Igroups) => (
-          <div key={grps._id} className='' onClick={() => dispatch(setSelectedGroup(grps._id))}>
+          <div key={grps?._id} className='' onClick={() => dispatch(setSelectedGroup(grps._id))}>
             <div className='border-2 rounded-full mx-auto flex  w-12 h-12  p-[1px] mb-1'>
               <img src={grps.profilePic || group} loading="lazy" alt="" className=' object-contain flex m-auto  rounded-full hover:rounded-xl transition-transform ' />
             </div>

@@ -34,22 +34,30 @@ export const getUsers = createAsyncThunk('chat/getUsers',async()=>{
 })
 
 //? get messages
-export const getMessages = createAsyncThunk('chat/getMessages',async(userId:string)=>{
-
+export const getMessages = createAsyncThunk('chat/getMessages',async({userId,GroupId}:{userId:string|null, GroupId:string|null })=>{
     try {
-        const response=await axiosInstance.get(`/message/messages/${userId}`)
-        return response.data
+        let response;
+        
+        if (GroupId) {
+            response = await axiosInstance.get(`/message/groupMessages/${GroupId}`);
+            
+            console.log(userId,'user');
+        } else {
+            
+            response = await axiosInstance.get(`/message/messages/${userId}`);
+        }
+        return response.data;
         
     } catch (error:any) {
-        toast.error(error.response.data.message)
-        
+        toast.error(error.response.data.message);
     }
 })
 
 //? send message
-export const sendMessages = createAsyncThunk('chat/sendMessage',async({UserId,messageData}:any)=>{
+export const sendMessages = createAsyncThunk('chat/sendMessage',async({UserId,messageData,GroupId}:{UserId?:string|null,messageData:object|null,GroupId?:string|null})=>{
+    
     try {
-        const response=await axiosInstance.post(`/message/send/${UserId}`,messageData)
+        const response=await axiosInstance.post(`/message/send`,{messageData,UserId,GroupId})
         return response.data
         
     } catch (error:any) {
@@ -71,7 +79,7 @@ try {
 })
 
 //? get selected group
-export const setSelectedGroup=createAsyncThunk('chat/setSetlectedGroup',async(groupId:string|undefined)=>{
+export const setSelectedGroup=createAsyncThunk('chat/setSetlectedGroup',async(groupId:string)=>{
 try {
     const response = await axiosInstance.get(`/message/group/${groupId}`) 
     return response.data
@@ -80,21 +88,35 @@ try {
 }
 })
 
+//? get group members
+export const getGroupMembers=createAsyncThunk('chat/getGroupMembers',async({selectedGroupId}:{selectedGroupId?:string| null})=>{
+    try {
+        const response = await axiosInstance.get(`/message/groupmembers/${selectedGroupId}`) 
+        return response.data
+    } catch (error:any) {
+        toast.error(error.response.data.message)
+    }
+})
+
 //? add Members to group
-export const addGroupMember=createAsyncThunk('chat/addGroupMember',async({userId, selectedGroupId}: {userId: string, selectedGroupId: string})=>{
+export const addGroupMember=createAsyncThunk('chat/addGroupMember',async({selectedUserID, selectedGroupId}: {selectedUserID: string|null, selectedGroupId: string})=>{
 try {
-    const response = await axiosInstance.post(`/message/addMember/${selectedGroupId}`,{userId}) 
-    return response.data
+    const response = await axiosInstance.post(`/message/addMember/${selectedGroupId}`,{selectedUserID}) 
+    const data =response.data
+    toast(data.message)
+    return data.data
 } catch (error:any) {
     toast.error(error.response.data.message)
 }
 })
 
 //? remove Members from group
-export const removeGroupMember=createAsyncThunk('chat/addGroupMember',async({userId,selectedGroupId}:{userId:string,selectedGroupId: string})=>{
+export const removeGroupMember=createAsyncThunk('chat/removeGroupMember',async({selectedUserID,selectedGroupId}:{selectedUserID:string|null,selectedGroupId: string})=>{
 try {
-    const response = await axiosInstance.put(`/message/removeMember/${selectedGroupId}`,{userId}) 
-    return response.data
+    const response = await axiosInstance.put(`/message/removeMember/${selectedGroupId}`,{selectedUserID}) 
+    const data= response.data
+    toast(data.message)
+    return data.data
 } catch (error:any) {
     toast.error(error.response.data.message)
 }
@@ -134,21 +156,37 @@ export const getGroups= createAsyncThunk('chat/getGroups',async()=>{
 export const subscribeToMessage=()=>(dispatch:any,getState:any)=>{
     
     const {selectedUser} = getState().chatreducer
-    if(!selectedUser)return
+    const {selectedGroup} =getState().chatreducer
+    
+    if(!selectedUser && !selectedGroup)return
+    console.log(selectedGroup,'grpid');
 
     const socket = getSocket()
     console.log(socket);
 
     socket?.on('newMessage',(newMessage)=>{
-        if(newMessage.senderId === selectedUser._id)
+        console.log(newMessage,'fey');
+        
+        if( newMessage.senderId === selectedUser?._id )
         dispatch(addNewMessage(newMessage))
     })
+
+    selectedGroup && socket?.emit('joinGroup',selectedGroup?._id)
+
+    socket?.on('NewGrpMessage',(NewGrpMessage)=>{
+        console.log(NewGrpMessage,'fey');
+        
+        if( NewGrpMessage.chatroom === selectedGroup?._id )
+        dispatch(addNewMessage(NewGrpMessage))
+    })
+    
 }
 export const unSubscribeMessages =()=>{
     const socket = getSocket()
     console.log(socket);
     
     socket?.off('newMessage')
+    socket?.off('NewGrpMessage')
 }
 
 
@@ -248,10 +286,20 @@ const chatSlice=createSlice({
         .addCase(setSelectedGroup.rejected,(state)=>{
             state.selectedGroup=null
         })
+        //! get Group members
+        .addCase(getGroupMembers.pending,(state)=>{
+            state.groupMembers=null
+        })
+        .addCase(getGroupMembers.fulfilled,(state,action)=>{
+            state.groupMembers=action.payload
+        })
+        .addCase(getGroupMembers.rejected,(state)=>{
+            state.groupMembers=null
+        })
 
         //! add member to group
         .addCase(addGroupMember.fulfilled,(state,action)=>{
-            state.groupMembers=state.groupMembers?[...state.groupMembers, action.payload]:[action.payload]
+            state.groupMembers = state.groupMembers ? [...state.groupMembers, action.payload] : [action.payload]
         })
         .addCase(addGroupMember.rejected,(state)=>{
             state.groupMembers=null
@@ -259,7 +307,8 @@ const chatSlice=createSlice({
 
         //! remove member from group
         .addCase(removeGroupMember.fulfilled,(state,action)=>{
-            state.groupMembers=state.groupMembers?.filter((member:any)=>member._id!==action.payload) || null
+            console.log(action.payload); 
+            // state.groupMembers=state.groupMembers?.filter(members=>members !==)
         })
         
      
