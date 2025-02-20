@@ -165,7 +165,6 @@ export const subscribeToMessage=()=>(dispatch:any,getState:any)=>{
     console.log(socket);
 
     socket?.on('newMessage',(newMessage)=>{
-        console.log(newMessage,'fey');
         
         if( newMessage.senderId === selectedUser?._id )
         dispatch(addNewMessage(newMessage))
@@ -218,7 +217,10 @@ const chatSlice=createSlice({
     initialState,
     reducers:{
         addNewMessage: (state,action)=>{
-            state.messages=[...state.messages,action.payload]
+            const existingMessage= state.messages.some(
+                (msg=>msg._id== action.payload._id)
+            )
+            if(!existingMessage) state.messages=[...state.messages,action.payload]
             console.log(state.messages);
             
         }
@@ -270,7 +272,13 @@ const chatSlice=createSlice({
 
         //! send messages
         .addCase(sendMessages.fulfilled,(state,action)=>{
-            state.messages=[...state.messages,action.payload]
+
+            const messageExist=state.messages.some(
+                (msg)=>msg._id === action.payload._id
+            )
+            if(!messageExist){
+                state.messages=[...state.messages,action.payload]
+            }
         })
 
         //! get Groups

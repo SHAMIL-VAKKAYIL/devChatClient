@@ -15,15 +15,18 @@ function SideNavbar() {
     _id: string
     name: string
     profilePic: string
+    participants: string[]
   }
 
   const dispatch = useDispatch<AppDispatch>()
 
   const [groupName, setGroupName] = useState<string | null>(null)
 
-  const { getAllGroups, selectedGroup } = useSelector((state: RootState) => ({
+  const { getAllGroups, selectedGroup, authUser } = useSelector((state: RootState) => ({
     getAllGroups: state.chatreducer.groups,
     selectedGroup: state.chatreducer.selectedGroup,
+    // groupMembers: state.chatreducer.groupMembers,
+    authUser: state.userreducer.authUser
   }))
 
 
@@ -46,15 +49,17 @@ function SideNavbar() {
       <h1 className='lato-regular'>Groups</h1>
       <div className='  flex  flex-col gap-5 max-h-[60svh] overflow-y-scroll scroll-smooth scrollHide mt-4'>
         {/* group list */}
-        {getAllGroups.map((grps: Igroups) => (
-          <div key={grps?._id} className='' onClick={() => dispatch(setSelectedGroup(grps._id))}>
-            <div className='border-2 rounded-full mx-auto flex  w-12 h-12  p-[1px] mb-1'>
-              <img src={grps.profilePic || group} loading="lazy" alt="" className=' object-contain flex m-auto  rounded-full hover:rounded-xl transition-transform ' />
-            </div>
-            <p className={`text-center hover:bg-[#36353593] rounded-2xl  px-2 lato-regular ${selectedGroup?._id === grps._id ? 'bg-[#36353593]' : ''} `}>{grps.name}</p>
-          </div>
-
-        ))}
+        {getAllGroups.map((grps: Igroups) => {
+          if (grps.participants.includes(authUser._id))
+            return (
+              <div key={grps?._id} className='' onClick={() => dispatch(setSelectedGroup(grps._id))}>
+                <div className='border-2 rounded-full mx-auto flex  w-12 h-12  p-[1px] mb-1'>
+                  <img src={grps.profilePic || group} loading="lazy" alt="" className=' object-contain flex m-auto  rounded-full hover:rounded-xl transition-transform ' />
+                </div>
+                <p className={`text-center hover:bg-[#36353593] rounded-2xl  px-2 lato-regular ${selectedGroup?._id === grps._id ? 'bg-[#36353593]' : ''} `}>{grps.name.split('').slice(0,10).join('')}</p>
+              </div>
+            )
+        })}
 
       </div>
       {/* create group */}
@@ -86,7 +91,7 @@ function SideNavbar() {
           </DialogContent>
         </Dialog>
       </div>
-    </nav>
+    </nav >
   )
 }
 
