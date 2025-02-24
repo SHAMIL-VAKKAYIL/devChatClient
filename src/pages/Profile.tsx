@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 function Profile() {
 
     interface IUser {
-        fullname: string
+        userName: string
         email: string
         profilePic: string
         createdAt: string
@@ -90,7 +90,7 @@ function Profile() {
 
 
     useEffect(() => {
-        setName(User.fullname)
+        setName(User.userName)
         setEmail(User.email)
         setImage(User.profilePic)
     }, [User])
@@ -115,7 +115,7 @@ function Profile() {
                         </div>
                     </div>
                     <div className='flex flex-col justify-center items-center  text-white lato-bold tracking-wide text-xl mt-2'>
-                        <p>{User.fullname}</p>
+                        <p>{User.userName}</p>
                     </div>
                 </div>
                 <div className='m-auto flex w-[80%] mt-5 flex-col gap-5'>

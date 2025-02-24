@@ -152,6 +152,17 @@ export const getGroups= createAsyncThunk('chat/getGroups',async()=>{
     }
 })
 
+//? searching contacts
+export const searchContact=createAsyncThunk('chat/searchContact',async(searchTerm:string)=>{
+    try {
+        const response=await axiosInstance.get(`/message/search?query=${searchTerm}`)
+        return response.data      
+    } catch (error:any) {
+        toast.error(error.response.data.message)
+        
+    }
+})
+
 
 export const subscribeToMessage=()=>(dispatch:any,getState:any)=>{
     
@@ -191,7 +202,7 @@ export const unSubscribeMessages =()=>{
 
 interface IinitialState{
     messages:Array<any>,
-    users:Array<any>,
+    users:Array<any>|null,
     groups:Array<any>,
     selectedUser:any | null,
     isUserLoading:boolean | null,
@@ -274,7 +285,7 @@ const chatSlice=createSlice({
         .addCase(sendMessages.fulfilled,(state,action)=>{
 
             const messageExist=state.messages.some(
-                (msg)=>msg._id === action.payload._id
+                (msg)=>msg?._id === action.payload._id
             )
             if(!messageExist){
                 state.messages=[...state.messages,action.payload]
@@ -307,7 +318,7 @@ const chatSlice=createSlice({
 
         //! add member to group
         .addCase(addGroupMember.fulfilled,(state,action)=>{
-            state.groupMembers = state.groupMembers ? [...state.groupMembers, action.payload] : [action.payload]
+            state.groupMembers = action.payload
         })
         .addCase(addGroupMember.rejected,(state)=>{
             state.groupMembers=null
@@ -316,7 +327,16 @@ const chatSlice=createSlice({
         //! remove member from group
         .addCase(removeGroupMember.fulfilled,(state,action)=>{
             console.log(action.payload); 
-            // state.groupMembers=state.groupMembers?.filter(members=>members !==)
+            state.groupMembers=action.payload
+        })
+
+        //! search Contact
+        .addCase(searchContact.fulfilled,(state,action)=>{
+            console.log(action.payload);
+            state.users=action.payload
+        })
+        .addCase(searchContact.rejected,(state)=>{
+            state.users=null
         })
         
      

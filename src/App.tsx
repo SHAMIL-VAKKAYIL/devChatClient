@@ -9,12 +9,13 @@ import { AppDispatch, RootState } from './store'
 import { Toaster } from 'react-hot-toast'
 import { AiOutlineLoading3Quarters } from 'react-icons/ai'
 import Profile from './pages/Profile'
+import Signup from './pages/Signup'
 function App() {
 
 
   const dispatch = useDispatch<AppDispatch>()
 
-  const { authUser, isCheckingAuth, onlineUsers } = useSelector((state: RootState) => ({
+  const { authUser, isCheckingAuth } = useSelector((state: RootState) => ({
     authUser: state.userreducer.authUser,
     isCheckingAuth: state.userreducer.isCheckingAuth,
     onlineUsers: state.userreducer.onlineUsers
@@ -46,13 +47,14 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route path='/' element={authUser ? <Home /> : <Navigate to={'/Auth'} />} />
+          <Route path='/signup' element={<Signup />} />
+          <Route path='/' element={authUser ? <Home /> : <Navigate to={'/signin'} />} />
           {/* <Route path='/' element={ <Home /> } /> */}
-          <Route path='/Auth' element={authUser ? <Navigate to={'/'} /> : <Login />} />
+          <Route path='/signin' element={authUser ? <Navigate to={'/'} /> : <Login />} />
           <Route path='/Profile' element={authUser ? <Profile /> : <Navigate to={'/'} />} />
           {/* <Route path='/Profile' element={ <Profile />}  /> */}
         </Routes>
-      </Router>
+      </Router >
       <Toaster />
     </>
   )

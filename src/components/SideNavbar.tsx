@@ -49,7 +49,7 @@ function SideNavbar() {
       <h1 className='lato-regular'>Groups</h1>
       <div className='  flex  flex-col gap-5 max-h-[60svh] overflow-y-scroll scroll-smooth scrollHide mt-4'>
         {/* group list */}
-        {getAllGroups.map((grps: Igroups) => {
+        {getAllGroups?.map((grps: Igroups) => {
           if (grps.participants.includes(authUser._id))
             return (
               <div key={grps?._id} className='' onClick={() => dispatch(setSelectedGroup(grps._id))}>

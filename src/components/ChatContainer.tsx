@@ -14,12 +14,12 @@ import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescript
 
 interface IselectUser {
   _id: string | null;
-  fullname: string;
+  userName: string;
   profilePic: string;
 }
-interface IgroupMembers {
-  _id: string | null;
-}
+// interface IgroupMembers {
+//   _id: string | null;
+// }
 interface IselectGroup {
   _id: string;
   name: string;
@@ -53,7 +53,6 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
     onlineUsers: state.userreducer.onlineUsers,
     groupMembers: state.chatreducer.groupMembers,
 
-
   }))
   console.log(groupMembers, 'members');
 
@@ -71,7 +70,7 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
     dispatch(subscribeToMessage())
   }, [selectedUser?._id, subscribeToMessage, selectedGroup?._id])
 
-  
+
   useEffect(() => {
     if (MessageEndRef.current && messages) {
       MessageEndRef.current.scrollIntoView({ behavior: 'smooth' })
@@ -141,7 +140,7 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
     }
   }
   console.log(messages);
-  
+
 
   if (ismessageloading) return <div className='relative flex-2 flex-grow bg-bg2 rounded-xl rounded-t-2xl overflow-y-scroll scrollHide  hidden sm:flex sm:flex-col  '><MessageSkeleton /></div>
 
@@ -154,34 +153,35 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
             <img src={selectedUser?.profilePic || selectedGroup?.profilePic || avatar} alt="" className='object-contain w-14 h-14 rounded-full' />
           </div>
           <div>
-            <p>{selectedUser ? selectedUser.fullname : selectedGroup ? selectedGroup.name : ''}</p>
-            <p className='lato-regular text-[#939191ec]'>{onlineUsers.includes(selectedUser?._id) ? 'online' : 'offline'}</p>
+            <p>{selectedUser ? selectedUser.userName : selectedGroup ? selectedGroup.name : ''}</p>
+            {selectedUser && <p className='lato-regular text-[#939191ec]'>{onlineUsers.includes(selectedUser?._id) ? 'online' : 'offline'}</p>}
+            {selectedGroup && <p className='lato-regular flex text-[#939191ec]  overflow-x-scroll scrollHide monh '>{groupMembers?.length} Members on this group</p>}
           </div>
         </div>
         <FaRegCircleXmark size={26} color='#f0f0f0' onClick={clearChatcontainer} />
       </div>
       {selectedGroup?.creator === authUser?._id && <div className='flex justify-end' >
-        <div className='bg-[#36353593] px-4 gap-2 ml-1 mt-1  py-2 rounded-xl flex lato-bold text-secondary cursor-pointer ' onClick={openAddMember}>
+        <div className='bg-[#36353593] px-4 mb-1 gap-2  mt-1  py-2 rounded-xl flex lato-bold text-secondary cursor-pointer ' onClick={openAddMember}>
           <FaRegCircleXmark size={26} color='#0bba48b5' className='rotate-45 mx-auto' />
-          <p>Add members</p>
+          <p>Manage members</p>
         </div>
       </div>}
       {/* Messages */}
       <div className='flex-1 overflow-y-auto p-4 space-y-4 mb-10'>
-        {messages?.map((msg,index) => (
+        {messages?.map((msg, index) => (
           <div key={msg?._id || `msg-${index}`}
             ref={MessageEndRef}
-            className={`flex ${msg.senderId === authUser._id ? 'justify-end' : 'justify-start'}`}>
+            className={`flex ${msg?.senderId === authUser._id ? 'justify-end' : 'justify-start'}`}>
             <div className="flex items-start gap-2 ">
-              <img className={`${msg.senderId === authUser._id ? 'hidden' : 'w-8 h-8 rounded-full'}`} src={selectedUser?.profilePic || avatar} alt="user" />
+              <img className={`${msg?.senderId === authUser._id ? 'hidden' : 'w-8 h-8 rounded-full'}`} src={selectedUser?.profilePic || avatar} alt="user" />
               <div className={`flex flex-col w-full max-w-[320px] leading-1.5 px-1 py-2 border-gray-200  `}>
-                <div className={`${msg.senderId === authUser._id ? 'justify-end w-full flex ' : ''}flex items-center space-x-2 rtl:space-x-reverse`}>
-                  <span className="text-sm lato-bold text-secondary dark:text-white">{msg.senderId === authUser._id ? 'You' : selectedUser?.fullname}</span>
-                  <span className="text-xs lato-regular text-secondary">{formatMessageTime(msg.createdAt)}</span>
+                <div className={`${msg?.senderId === authUser._id ? 'justify-end w-full flex ' : ''}flex items-center space-x-2 rtl:space-x-reverse`}>
+                  <span className="text-sm lato-bold text-secondary dark:text-white">{msg?.senderId === authUser._id ? 'You' : selectedUser?.userName}</span>
+                  <span className="text-xs lato-regular text-secondary">{formatMessageTime(msg?.createdAt)}</span>
                 </div>
-                <div className={` ${msg.senderId === authUser._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-[#424141b3] text-sm font-normal p-2 text-gray-900 dark:text-white`}>
-                  {msg.image && <img src={msg.image} className='sm:max-w-[200px] rounded-md  mb-2' />}
-                  {msg.text && <p className='text-secondary' >{msg.text}</p>}
+                <div className={` ${msg?.senderId === authUser._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-[#424141b3] text-sm font-normal p-2 text-gray-900 dark:text-white`}>
+                  {msg?.image && <img src={msg?.image} className='sm:max-w-[200px] rounded-md  mb-2' />}
+                  {msg?.text && <p className='text-secondary' >{msg?.text}</p>}
                 </div>
               </div>
             </div>
@@ -248,7 +248,7 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
 
               <AlertDialogDescription key={user._id} className='text-secondary text-lg flex items-center gap-2 py-1 lato-regular ' >
                 {groupMembers?.includes(user._id) ? <FaCircleMinus className="text-zinc-400 hover:text-red-600" size={20} onClick={() => removeMember(user._id)} /> : <FaCirclePlus className="text-zinc-400 hover:text-emerald-500" size={20} onClick={() => addmember(user._id)} />}
-                {user?.fullname}
+                {user?.userName}
               </AlertDialogDescription>
             ))}
           </AlertDialogHeader>
