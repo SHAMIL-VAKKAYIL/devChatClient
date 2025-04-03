@@ -2,13 +2,13 @@ import avatar from '../assets/images/man.png'
 import { IoMdContacts } from "react-icons/io";
 import { Button } from './ui/button';
 import { useDispatch, useSelector } from 'react-redux';
-import { features, searchContact, setSelectedUser } from '@/store/chatSlice';
+import { features, getUsers, searchContact, setSelectedUser } from '@/store/chatSlice';
 import { AppDispatch, RootState } from '@/store';
 import { FaCircle } from 'react-icons/fa6';
 import { Input } from './ui/input';
 import { FiSearch } from "react-icons/fi";
 import React, { useEffect, useState } from 'react';
-import { setOnlineUsers } from '@/store/userSlice';
+// import { setOnlineUsers } from '@/store/userSlice';
 
 interface IUser {
     _id: string,
@@ -17,7 +17,7 @@ interface IUser {
 }
 interface IContact {
     isuserLoading: boolean | null,
-    users: IUser[],
+    users: IUser[] | null,
     classStyle: string
 }
 
@@ -41,8 +41,8 @@ function Contactlist({ isuserLoading, users, classStyle }: IContact) {
     }, [searchTerm, dispatch])
 
     return (
-        <div className={`${classStyle} flex-2 flex-grow w-full sm:max-w-xs flex gap-3 flex-col rounded-xl mx-auto bg-[#36353593] text-secondary py-5 overflow-y-scroll scrollHide`}>
-            <div className='flex w-[90%] mx-auto items-center justify-start  py-3 px-3 gap-2 border-b-2 border-[#646363]'>
+        <div className={`${classStyle} flex-2 flex-grow  sm:max-w-xs flex gap-3 flex-col rounded-xl mx-auto bg-[#36353593] text-secondary py-5 overflow-y-scroll scrollHide `}>
+            <div className='flex w-[80%] mx-auto items-center justify-start  py-3 px-3 gap-2 border-b-2 border-[#646363]'>
                 <IoMdContacts size={22} />
                 <p className='lato-bold'>Contacts</p>
             </div>

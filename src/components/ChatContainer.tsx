@@ -11,6 +11,9 @@ import { Button } from './ui/button';
 import { formatMessageTime } from '@/lib/utils';
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 // import { Checkbox } from './ui/checkbox';
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import hljs from 'highlight.js';
 
 interface IselectUser {
   _id: string | null;
@@ -45,22 +48,20 @@ interface Ichatcontainer {
 function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup, users }: Ichatcontainer) {
 
 
-
   const dispatch = useDispatch<AppDispatch>()
-
   const { authUser, onlineUsers, groupMembers } = useSelector((state: RootState) => ({
     authUser: state.userreducer.authUser,
     onlineUsers: state.userreducer.onlineUsers,
     groupMembers: state.chatreducer.groupMembers,
 
   }))
+
   console.log(groupMembers, 'members');
 
 
   const [text, setText] = useState<string | null>(null)
   const [imagePreview, setImagepreview] = useState<string | null>(null)
-  // const [checkExUser, setCheckExUser] = useState(false)
-
+  // const [checkExUser, setCheckExUser] = useState(false)  
   const fileInputRef = useRef<HTMLButtonElement | null>(null)
   const MessageEndRef = useRef<HTMLDivElement | null>(null)
   const addMemberRef = useRef<HTMLButtonElement | null>(null)
@@ -69,6 +70,7 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
     (selectedUser || selectedGroup) && dispatch(getMessages({ userId: selectedUser?._id, GroupId: selectedGroup?._id }))
     dispatch(subscribeToMessage())
   }, [selectedUser?._id, subscribeToMessage, selectedGroup?._id])
+
 
 
   useEffect(() => {
@@ -167,31 +169,51 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
         </div>
       </div>}
       {/* Messages */}
-      <div className='flex-1 overflow-y-auto p-4 space-y-4 mb-10'>
-        {messages?.map((msg, index) => (
-          <div key={msg?._id || `msg-${index}`}
-            ref={MessageEndRef}
-            className={`flex ${msg?.senderId === authUser._id ? 'justify-end' : 'justify-start'}`}>
-            <div className="flex items-start gap-2 ">
-              <img className={`${msg?.senderId === authUser._id ? 'hidden' : 'w-8 h-8 rounded-full'}`} src={selectedUser?.profilePic || avatar} alt="user" />
-              <div className={`flex flex-col w-full max-w-[320px] leading-1.5 px-1 py-2 border-gray-200  `}>
-                <div className={`${msg?.senderId === authUser._id ? 'justify-end w-full flex ' : ''}flex items-center space-x-2 rtl:space-x-reverse`}>
-                  <span className="text-sm lato-bold text-secondary dark:text-white">{msg?.senderId === authUser._id ? 'You' : selectedUser?.userName}</span>
-                  <span className="text-xs lato-regular text-secondary">{formatMessageTime(msg?.createdAt)}</span>
-                </div>
-                <div className={` ${msg?.senderId === authUser._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-[#424141b3] text-sm font-normal p-2 text-gray-900 dark:text-white`}>
-                  {msg?.image && <img src={msg?.image} className='sm:max-w-[200px] rounded-md  mb-2' />}
-                  {msg?.text && <p className='text-secondary' >{msg?.text}</p>}
+      <div className='flex-1 overflow-y-auto  p-4 space-y-4 mb-10'>
+        {messages?.map((msg, index) => {
+          const codeRegex = /``([\s\S]*?)``/g;
+          return (
+            <div key={msg?._id || index}
+              ref={MessageEndRef}
+              className={`flex ${msg?.senderId === authUser._id ? 'justify-end' : 'justify-start'}`}>
+              <div className="flex items-start gap-2 ">
+                <img className={`${msg?.senderId === authUser._id ? 'hidden' : 'w-8 h-8 rounded-full'}`} src={selectedUser?.profilePic || avatar} alt="user" />
+                <div className={`flex flex-col w-full max-w-[300px] lg:max-w-[500px] 2xl:max-w-[800px] leading-1.5 px-1 py-2 border-gray-200  `}>
+                  <div className={`${msg?.senderId === authUser._id ? 'justify-end w-full flex ' : ''}flex items-center space-x-2 rtl:space-x-reverse`}>
+                    <span className="text-sm lato-bold text-secondary dark:text-white">{msg?.senderId === authUser._id ? 'You' : selectedUser?.userName}</span>
+                    <span className="text-xs lato-regular text-secondary">{formatMessageTime(msg?.createdAt)}</span>
+                  </div>
+                  <div className={` ${msg?.senderId === authUser._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-[#424141b3] text-sm font-normal p-2 text-gray-900 dark:text-white`}>
+                    {msg?.image && <img src={msg?.image} className='sm:max-w-[200px] rounded-md  mb-2' />}
+                    {msg?.text && <p className='text-secondary' >{msg?.text.split(codeRegex).map((code, index) => {
+                      if (index % 2 === 1) {
+                        const detectedLang = hljs.highlightAuto(code).language || 'plaintext'
+                        return (
+                          <SyntaxHighlighter
+                            key={index}
+                            language={detectedLang}
+                            style={dracula}
+                            className="rounded-md p-2"
+                          >
+                            {code}
+                          </SyntaxHighlighter>
+                        )
+                      } else {
+                        return (
+                          <span key={index}>{code}</span>
+                        )
+                      } 
+                      })}</p>}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
-
       {/* Footer */}
-      <div className=' px-1  rounded-xl flex flex-col  w-[100%] mx-auto absolute bottom-1'>
+      <div className=' px-1 rounded-xl flex flex-col  w-[100%] mx-auto absolute bottom-1'>
         {imagePreview && (
           <div className="mb-3 flex items-center gap-2">
             <div className="relative">
@@ -223,11 +245,11 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
             onChange={handleImage}
             ref={fileInputRef} />
 
-          <Input
-            className='bg-transparent mx-2 outline-none border-none text-secondary h-full'
-            type='text'
+          <textarea
+            className='flex h-full w-full z-10  resize-y cursor-s-resize outline-none border-zinc-600 rounded-[2px] focus:border border-input px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-transparent mx-2  border-none text-secondary '
             onChange={(e) => setText(e.target.value)}
-            value={text} />
+            value={text}
+            name="" id=""></textarea>
 
           <Button
             className='bg-transparent '
