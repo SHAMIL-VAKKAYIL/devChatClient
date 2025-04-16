@@ -163,6 +163,16 @@ export const searchContact=createAsyncThunk('chat/searchContact',async(searchTer
     }
 })
 
+//? delete message 
+export const deleteMsg=createAsyncThunk('chat/deleteMSg',async(id:string)=>{
+    try {
+        const response =await axiosInstance.delete(`/message/delmsg/${id}`)
+        toast.success(response.data.message)
+        return response.data.data
+    } catch (error:any) {
+        toast.error(error.response.data.message)
+    }
+})
 
 export const subscribeToMessage=()=>(dispatch:any,getState:any)=>{
     
@@ -337,6 +347,12 @@ const chatSlice=createSlice({
         })
         .addCase(searchContact.rejected,(state)=>{
             state.users=null
+        })
+
+        //! delete message 
+        .addCase(deleteMsg.fulfilled,(state,action)=>{
+            console.log(action.payload);
+            state.messages = state.messages.filter((msg)=>msg._id != action.payload._id)
         })
         
      

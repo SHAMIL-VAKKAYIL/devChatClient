@@ -1,11 +1,11 @@
 import avatar from '../assets/images/man.png'
 import { FaCircleMinus, FaCirclePlus, FaRegCircleXmark } from "react-icons/fa6";
 import { Input } from './ui/input';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { IoIosSend } from "react-icons/io"
 import { AppDispatch, RootState } from '@/store';
-import { addGroupMember, getGroupMembers, getMessages, removechatContainer, removeGroupMember, sendMessages, subscribeToMessage, unSubscribeMessages } from '@/store/chatSlice';
+import { addGroupMember, deleteMsg, getGroupMembers, getMessages, removechatContainer, removeGroupMember, sendMessages, subscribeToMessage, unSubscribeMessages } from '@/store/chatSlice';
 import MessageSkeleton from './ui/MessageSkelton';
 import { Button } from './ui/button';
 import { formatMessageTime } from '@/lib/utils';
@@ -14,6 +14,14 @@ import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescript
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import hljs from 'highlight.js';
+import { GoTrash } from "react-icons/go";
+import { IoMdMore } from "react-icons/io";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface IselectUser {
   _id: string | null;
@@ -56,7 +64,6 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
 
   }))
 
-  console.log(groupMembers, 'members');
 
 
   const [text, setText] = useState<string | null>(null)
@@ -65,6 +72,7 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
   const fileInputRef = useRef<HTMLButtonElement | null>(null)
   const MessageEndRef = useRef<HTMLDivElement | null>(null)
   const addMemberRef = useRef<HTMLButtonElement | null>(null)
+  const deletemessageRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
     (selectedUser || selectedGroup) && dispatch(getMessages({ userId: selectedUser?._id, GroupId: selectedGroup?._id }))
@@ -119,6 +127,12 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
     dispatch(removeGroupMember({ selectedUserID, selectedGroupId: selectedGroup?._id }))
   }
 
+  //?del message pop up
+  const opendelmessage = () => {
+    // alert('clik')
+    deletemessageRef.current?.click()
+  }
+
   const sendMessage = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!text && !imagePreview) return;
@@ -141,7 +155,6 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
       console.error(error);
     }
   }
-  console.log(messages);
 
 
   if (ismessageloading) return <div className='relative flex-2 flex-grow bg-bg2 rounded-xl rounded-t-2xl overflow-y-scroll scrollHide  hidden sm:flex sm:flex-col  '><MessageSkeleton /></div>
@@ -183,8 +196,9 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
                     <span className="text-sm lato-bold text-secondary dark:text-white">{msg?.senderId === authUser._id ? 'You' : selectedUser?.userName}</span>
                     <span className="text-xs lato-regular text-secondary">{formatMessageTime(msg?.createdAt)}</span>
                   </div>
-                  <div className={` ${msg?.senderId === authUser._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-[#424141b3] text-sm font-normal p-2 text-gray-900 dark:text-white`}>
-                    {msg?.image && <img src={msg?.image} className='sm:max-w-[200px] rounded-md  mb-2' />}
+                  <div className={` ${msg?.senderId === authUser._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-[#424141b3] text-sm font-normal p-2 text-gray-900 dark:text-white flex gap-2`}>
+
+                    {msg?.image && <img src={msg?.image} className='sm:max-w-[200px] rounded-md  mb-2 mt-2' />}
                     {msg?.text && <p className='text-secondary' >{msg?.text.split(codeRegex).map((code, index) => {
                       if (index % 2 === 1) {
                         const detectedLang = hljs.highlightAuto(code).language || 'plaintext'
@@ -202,8 +216,23 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
                         return (
                           <span key={index}>{code}</span>
                         )
-                      } 
-                      })}</p>}
+                      }
+                    })}</p>}
+                    {msg?.senderId === authUser._id && (
+                      <div className="relative z-50">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="p-1 text-white  hover:bg-white/10 rounded-full transition">
+                              <IoMdMore />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className=" border-none z-50 bg-[#f0f0f0] m-auto" side="top" align="end">
+                            <DropdownMenuLabel className='flex gap-1 m-auto w-full justify-center cursor-pointer' onClick={() => dispatch(deleteMsg(msg._id))}> <GoTrash size={20} color='red' /><span> Delete</span></DropdownMenuLabel>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
+                    )}
                   </div>
                 </div>
               </div>
@@ -254,13 +283,16 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
           <Button
             className='bg-transparent '
             onClick={sendMessage}
-            disabled={!text?.trim() && !imagePreview}>
+            disabled={!text?.trim() && !imagePreview}
+          >
             <IoIosSend size={26} color='#f0f0f0' />
           </Button>
 
 
         </div>
       </div>
+
+
       <AlertDialog>
         <AlertDialogTrigger ref={addMemberRef} className='flex'></AlertDialogTrigger>
         <AlertDialogContent className='bg-bg2 border-none'>
