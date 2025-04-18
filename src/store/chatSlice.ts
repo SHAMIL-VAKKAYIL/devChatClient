@@ -295,7 +295,7 @@ const chatSlice=createSlice({
         .addCase(sendMessages.fulfilled,(state,action)=>{
 
             const messageExist=state.messages.some(
-                (msg)=>msg?._id === action.payload._id
+                (msg)=>msg?._id === action.payload?._id
             )
             if(!messageExist){
                 state.messages=[...state.messages,action.payload]

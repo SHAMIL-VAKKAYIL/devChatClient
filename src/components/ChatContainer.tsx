@@ -126,13 +126,6 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
   const removeMember = (selectedUserID: string | null) => {
     dispatch(removeGroupMember({ selectedUserID, selectedGroupId: selectedGroup?._id }))
   }
-
-  //?del message pop up
-  const opendelmessage = () => {
-    // alert('clik')
-    deletemessageRef.current?.click()
-  }
-
   const sendMessage = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!text && !imagePreview) return;
@@ -168,7 +161,7 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
             <img src={selectedUser?.profilePic || selectedGroup?.profilePic || avatar} alt="" className='object-contain w-14 h-14 rounded-full' />
           </div>
           <div>
-            <p>{selectedUser ? selectedUser.userName : selectedGroup ? selectedGroup.name : ''}</p>
+            <p>{selectedUser ? selectedUser?.userName : selectedGroup ? selectedGroup?.name : ''}</p>
             {selectedUser && <p className='lato-regular text-[#939191ec]'>{onlineUsers.includes(selectedUser?._id) ? 'online' : 'offline'}</p>}
             {selectedGroup && <p className='lato-regular flex text-[#939191ec]  overflow-x-scroll scrollHide monh '>{groupMembers?.length} Members on this group</p>}
           </div>
@@ -188,15 +181,15 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
           return (
             <div key={msg?._id || index}
               ref={MessageEndRef}
-              className={`flex ${msg?.senderId === authUser._id ? 'justify-end' : 'justify-start'}`}>
+              className={`flex ${msg?.senderId === authUser?._id ? 'justify-end' : 'justify-start'}`}>
               <div className="flex items-start gap-2 ">
-                <img className={`${msg?.senderId === authUser._id ? 'hidden' : 'w-8 h-8 rounded-full'}`} src={selectedUser?.profilePic || avatar} alt="user" />
+                <img className={`${msg?.senderId === authUser?._id ? 'hidden' : 'w-8 h-8 rounded-full'}`} src={selectedUser?.profilePic || avatar} alt="user" />
                 <div className={`flex flex-col w-full max-w-[300px] lg:max-w-[500px] 2xl:max-w-[800px] leading-1.5 px-1 py-2 border-gray-200  `}>
-                  <div className={`${msg?.senderId === authUser._id ? 'justify-end w-full flex ' : ''}flex items-center space-x-2 rtl:space-x-reverse`}>
-                    <span className="text-sm lato-bold text-secondary dark:text-white">{msg?.senderId === authUser._id ? 'You' : selectedUser?.userName}</span>
+                  <div className={`${msg?.senderId === authUser?._id ? 'justify-end w-full flex ' : ''}flex items-center space-x-2 rtl:space-x-reverse`}>
+                    <span className="text-sm lato-bold text-secondary dark:text-white">{msg?.senderId === authUser?._id ? 'You' : selectedUser?.userName}</span>
                     <span className="text-xs lato-regular text-secondary">{formatMessageTime(msg?.createdAt)}</span>
                   </div>
-                  <div className={` ${msg?.senderId === authUser._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-[#424141b3] text-sm font-normal p-2 text-gray-900 dark:text-white flex gap-2`}>
+                  <div className={` ${msg?.senderId === authUser?._id ? 'rounded-ee-xl rounded-s-xl' : 'rounded-e-xl rounded-es-xl'} dark:bg-gray-700 bg-[#424141b3] text-sm font-normal p-2 text-gray-900 dark:text-white flex gap-2`}>
 
                     {msg?.image && <img src={msg?.image} className='sm:max-w-[200px] rounded-md  mb-2 mt-2' />}
                     {msg?.text && <p className='text-secondary' >{msg?.text.split(codeRegex).map((code, index) => {
@@ -218,7 +211,7 @@ function ChatContainer({ selectedUser, messages, ismessageloading, selectedGroup
                         )
                       }
                     })}</p>}
-                    {msg?.senderId === authUser._id && (
+                    {msg?.senderId === authUser?._id && (
                       <div className="relative z-50">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

@@ -7,6 +7,7 @@ import { RootState, AppDispatch } from "@/store";
 import NochatContainer from "@/components/NochatContainer";
 import { useEffect } from "react";
 import { getUsers } from "@/store/chatSlice";
+import SmallDevice from "@/components/SmallDevice";
 
 function Home() {
 
@@ -31,28 +32,33 @@ function Home() {
 
 
     return (
-        <div className="h-screen bg-primary overflow-hidden flex flex-col ">
-            <div className="relative p-1 ">
-                <NavbarTop />
+        <>
+            <div className="flex sm:hidden">
+                <SmallDevice />
             </div>
-            <div className="flex  px-1 w-full mx-auto gap-1 h-[91.5svh] pb-1">
-                <SideNavbar />
-                <Contactlist
-                    isuserLoading={isUserLoading}
-                    users={users}
-                    classStyle={selectedUser || selectedGroup ? 'hidden sm:flex' : ''}
-                />
-                {selectedUser || selectedGroup ?
-                    <ChatContainer
-                        selectedUser={selectedUser}
-                        messages={messages}
-                        ismessageloading={isMessagesLoading}
-                        selectedGroup={selectedGroup}
+            <div className="h-screen bg-primary overflow-hidden  flex-col hidden sm:flex">
+                <div className="relative p-1 ">
+                    <NavbarTop />
+                </div>
+                <div className="flex  px-1 w-full mx-auto gap-1 h-[91.5svh] pb-1">
+                    <SideNavbar />
+                    <Contactlist
+                        isuserLoading={isUserLoading}
                         users={users}
+                        classStyle={selectedUser || selectedGroup ? 'hidden sm:flex' : ''}
+                    />
+                    {selectedUser || selectedGroup ?
+                        <ChatContainer
+                            selectedUser={selectedUser}
+                            messages={messages}
+                            ismessageloading={isMessagesLoading}
+                            selectedGroup={selectedGroup}
+                            users={users}
 
-                    /> : <NochatContainer />}
+                        /> : <NochatContainer />}
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 
